@@ -410,5 +410,10 @@
       "key": "ctrl+shift+tab",
       "command": "-workbench.action.quickOpenNavigatePreviousInEditorPicker",
       "when": "inEditorsPicker && inQuickOpen"
+   },
+    {
+      "key": "ctrl+j",
+      "command": "-workbench.action.togglePanel"
    }
+   
 ]
