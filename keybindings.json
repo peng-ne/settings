@@ -1,0 +1,374 @@
+[
+   // MAIN COMMANDS
+   {
+      "key": "ctrl+p",
+      "command": "workbench.action.showCommands"
+   },
+   {
+      "key": "ctrl+shift+p",
+      "command": "workbench.action.openRecent"
+   },
+   {
+      "key": "ctrl+backspace",
+      "command": "deleteWordLeft",
+      "when": "!editorFocus && !inQuickOpen"
+   },
+
+   // WORD MATCHES
+   // Ctrl+shift+l = all matches
+   {
+      "key": "ctrl+shift+j",
+      "command": "editor.action.addSelectionToNextFindMatch",
+      "when": "editorFocus"
+   },
+   {
+      "key": "ctrl+shift+k",
+      "command": "editor.action.addSelectionToPreviousFindMatch",
+      "when": "editorFocus"
+   },
+   {
+      "key": "ctrl+shift+u",
+      "command": "cursorUndo",
+      "when": "textInputFocus"
+   },
+
+   // SIDE BAR
+  {
+         "before": ["leader", "e"],
+         "commands": ["workbench.action.focusSideBar"]
+      },
+      {
+         "before": ["leader", "e"],
+          "when": ["!sideBarFocus"],
+         "commands": ["workbench.action.focusSideBar"]
+      },
+      {
+         "before": ["leader", "e"],
+          "when": "sideBarFocus",
+    "command": "workbench.action.focusActiveEditorGroup"
+      },
+   {
+      "key": "f",
+      "command": "explorer.newFolder",
+      "when": "filesExplorerFocus && listFocus && !inputFocus"
+   },
+   {
+      "key": "a",
+      "command": "explorer.newFile",
+      "when": "filesExplorerFocus && listFocus && !inputFocus"
+   },
+   {
+      "key": "d",
+      "command": "moveFileToTrash",
+      "when": "filesExplorerFocus && listFocus && !inputFocus"
+   },
+   {
+      "key": "r",
+      "command": "renameFile",
+      "when": "filesExplorerFocus && listFocus && !inputFocus"
+   },
+   {
+      "key": "x",
+      "command": "filesExplorer.cut",
+      "when": "filesExplorerFocus && listFocus && !inputFocus"
+   },
+   {
+      "key": "y",
+      "command": "filesExplorer.copy",
+      "when": "filesExplorerFocus && listFocus && !inputFocus"
+   },
+   {
+      "key": "p",
+      "command": "filesExplorer.paste",
+      "when": "filesExplorerFocus && listFocus && !inputFocus"
+   },
+   {
+      "key": "alt+b",
+      "command": "workbench.action.toggleSidebarVisibility"
+   },
+
+   {
+      "command": "runCommands",
+      "key": "enter",
+      "when": "filesExplorerFocus && listFocus && !inputFocus",
+      "args": {
+         "commands": ["list.select", "workbench.action.toggleSidebarVisibility"]
+      }
+   },
+   {
+      "key": "ctrl+h",
+      "command": "workbench.action.toggleSidebarVisibility"
+   },
+   {
+      "key": "ctrl+h",
+      "command": "workbench.view.explorer",
+      "when": "editorTextFocus || !editorIsOpen || activeEditorGroupEmpty"
+   },
+
+   // NOTIFICATIONS
+   {
+      "key": "ctrl+k ctrl+0",
+      "command": "notifications.focusFirstToast"
+   },
+   {
+      "key": "ctrl+k 0",
+      "command": "notifications.showList"
+   },
+
+   // TERMINAL
+   {
+      "key": "ctrl+shift+j",
+      "command": "workbench.action.terminal.new",
+      "when": "terminalFocus"
+   },
+   {
+      "key": "ctrl+-",
+      "command": "workbench.action.terminal.focusNext",
+      "when": "terminalFocus && terminalHasBeenCreated && !terminalEditorFocus || terminalFocus && terminalProcessSupported && !terminalEditorFocus"
+   },
+   {
+      "key": "ctrl+shift+-",
+      "command": "workbench.action.terminal.focusPrevious",
+      "when": "terminalFocus && terminalHasBeenCreated && !terminalEditorFocus || terminalFocus && terminalProcessSupported && !terminalEditorFocus"
+   },
+   {
+      "key": "ctrl+=",
+      "command": "workbench.action.toggleMaximizedPanel",
+      "when": "terminalFocus && terminalHasBeenCreated && !terminalEditorFocus || terminalFocus && terminalProcessSupported && !terminalEditorFocus"
+   },
+
+   // CHANGE TABS
+   {
+      "key": "ctrl+tab",
+      "command": "workbench.action.nextEditorInGroup"
+   },
+   {
+      "key": "ctrl+shift+tab",
+      "command": "workbench.action.previousEditorInGroup"
+   },
+
+   {
+      "key": "ctrl+9",
+      "command": "workbench.action.quickOpenPreviousRecentlyUsedEditorInGroup",
+      "when": "!activeEditorGroupEmpty"
+   },
+   {
+      "key": "ctrl+9",
+      "command": "workbench.action.quickOpenNavigateNextInEditorPicker",
+      "when": "inEditorsPicker && inQuickOpen"
+   },
+   {
+      "key": "ctrl+0",
+      "command": "workbench.action.quickOpenLeastRecentlyUsedEditorInGroup",
+      "when": "!activeEditorGroupEmpty"
+   },
+   {
+      "key": "ctrl+0",
+      "command": "workbench.action.quickOpenNavigatePreviousInEditorPicker",
+      "when": "inEditorsPicker && inQuickOpen"
+   },
+
+   // WINDOW RESIZE
+   {
+      "key": "ctrl+shift+-",
+      "command": "workbench.action.decreaseViewSize",
+      "when": "editorTextFocus"
+   },
+   {
+      "key": "ctrl+shift+=",
+      "command": "workbench.action.increaseViewSize",
+      "when": "editorTextFocus"
+   },
+   {
+      "key": "ctrl+k ctrl+-",
+      "command": "workbench.action.minimizeOtherEditors"
+   },
+   {
+      "key": "ctrl+k ctrl+=",
+      "command": "workbench.action.evenEditorWidths"
+   },
+
+   // GROUPS TABS
+   // c-k c-m = toogle splits
+   {
+      "command": "runCommands",
+      "key": "ctrl+1",
+      "args": {
+         "commands": [
+            "workbench.action.focusFirstEditorGroup",
+            "workbench.action.maximizeEditorHideSidebar"
+         ]
+      }
+   },
+   {
+      "command": "runCommands",
+      "key": "ctrl+2",
+      "args": {
+         "commands": [
+            "workbench.action.focusSecondEditorGroup",
+            "workbench.action.maximizeEditorHideSidebar"
+         ]
+      }
+   },
+   {
+      "command": "runCommands",
+      "key": "ctrl+3",
+      "args": {
+         "commands": [
+            "workbench.action.focusThirdEditorGroup",
+            "workbench.action.maximizeEditorHideSidebar"
+         ]
+      }
+   },
+   {
+      "command": "runCommands",
+      "key": "ctrl+4",
+      "args": {
+         "commands": [
+            "workbench.action.focusFourthEditorGroup",
+            "workbench.action.maximizeEditorHideSidebar"
+         ]
+      }
+   },
+
+   // Fix editor focus when empty
+   {
+      "command": "runCommands",
+      "key": "ctrl+1",
+      "when": "!editorIsOpen || activeEditorGroupEmpty",
+      "args": {
+         "commands": [
+            "workbench.action.focusFirstEditorGroup",
+            "workbench.action.toggleMaximizeEditorGroup"
+         ]
+      }
+   },
+   {
+      "command": "runCommands",
+      "key": "ctrl+2",
+      "when": "!editorIsOpen || activeEditorGroupEmpty",
+      "args": {
+         "commands": [
+            "workbench.action.focusSecondEditorGroup",
+            "workbench.action.toggleMaximizeEditorGroup"
+         ]
+      }
+   },
+   {
+      "command": "runCommands",
+      "key": "ctrl+3",
+      "when": "!editorIsOpen || activeEditorGroupEmpty",
+      "args": {
+         "commands": [
+            "workbench.action.focusThirdEditorGroup",
+            "workbench.action.toggleMaximizeEditorGroup"
+         ]
+      }
+   },
+   {
+      "command": "runCommands",
+      "key": "ctrl+4",
+      "when": "!editorIsOpen || activeEditorGroupEmpty",
+      "args": {
+         "commands": [
+            "workbench.action.focusFourthEditorGroup",
+            "workbench.action.toggleMaximizeEditorGroup"
+         ]
+      }
+   },
+
+   // Editor focus when split
+   {
+      "key": "ctrl+shift+1",
+      "command": "workbench.action.focusFirstEditorGroup"
+   },
+   {
+      "key": "ctrl+shift+2",
+      "command": "workbench.action.focusSecondEditorGroup"
+   },
+   {
+      "key": "ctrl+shift+3",
+      "command": "workbench.action.focusThirdEditorGroup"
+   },
+
+   // Close editor maximize
+   {
+      "command": "runCommands",
+      "key": "ctrl+k w",
+      "args": {
+         "commands": [
+            "workbench.action.closeEditorsInGroup",
+            "workbench.action.toggleMaximizeEditorGroup"
+         ]
+      }
+   },
+   {
+      "command": "runCommands",
+      "key": "ctrl+w",
+      "args": {
+         "commands": [
+            "workbench.action.closeActiveEditor",
+            "workbench.action.maximizeEditorHideSidebar"
+         ]
+      },
+      "when": "editorTextFocus && vim.active && vim.mode != 'Insert'"
+   },
+
+   // Move editor next / previous
+   {
+      "command": "runCommands",
+      "key": "ctrl+n",
+      "args": {
+         "commands": [
+            "workbench.action.moveEditorToNextGroup",
+            "workbench.action.toggleMaximizeEditorGroup"
+         ]
+      }
+   },
+   {
+      "command": "runCommands",
+      "key": "ctrl+shift+n",
+      "args": {
+         "commands": [
+            "workbench.action.moveEditorToPreviousGroup",
+            "workbench.action.toggleMaximizeEditorGroup"
+         ]
+      }
+   },
+
+   // COMMANDS / SHORCUTS REMOVED
+   // COMMANDS / SHORCUTS REMOVED
+   // COMMANDS / SHORCUTS REMOVED
+
+   {
+      "key": "ctrl+backspace",
+      "command": "-deleteWordLeft",
+      "when": "textInputFocus && !editorReadonly"
+   },
+   {
+      "key": "escape escape",
+      "command": "-workbench.action.exitZenMode",
+      "when": "inZenMode"
+   },
+
+   {
+      "key": "ctrl+tab",
+      "command": "-workbench.action.quickOpenPreviousRecentlyUsedEditorInGroup",
+      "when": "!activeEditorGroupEmpty"
+   },
+   {
+      "key": "ctrl+tab",
+      "command": "-workbench.action.quickOpenNavigateNextInEditorPicker",
+      "when": "inEditorsPicker && inQuickOpen"
+   },
+   {
+      "key": "ctrl+shift+tab",
+      "command": "-workbench.action.quickOpenLeastRecentlyUsedEditorInGroup",
+      "when": "!activeEditorGroupEmpty"
+   },
+   {
+      "key": "ctrl+shift+tab",
+      "command": "-workbench.action.quickOpenNavigatePreviousInEditorPicker",
+      "when": "inEditorsPicker && inQuickOpen"
+   }
+]
