@@ -62,6 +62,18 @@
 
    // SIDE BAR
   {
+    // "ctrl+h": Collapses the selected item in a list when the list is focused and no input field is focused.
+    "key": "ctrl+h",
+    "command": "list.collapse",
+    "when": "listFocus && !inputFocus"
+  },
+  {
+    // "ctrl+l": Expands the selected item in a list when the list is focused and no input field is focused.
+    "key": "ctrl+l",
+    "command": "list.expand",
+    "when": "listFocus && !inputFocus"
+  },
+   {
          "before": ["leader", "e"],
          "commands": ["workbench.action.focusSideBar"]
       },
