@@ -14,6 +14,34 @@
       "when": "!editorFocus && !inQuickOpen"
    },
 
+// SUGGESTIONS AND AUTOCOMPLETION SHORTCUTS
+{
+    // "ctrl+j": Selects the next suggestion in the suggestions widget when the widget is visible.
+    "key": "ctrl+j",
+    "command": "selectNextSuggestion",
+    "when": "suggestWidgetVisible"
+  },
+  {
+    // "ctrl+k": Selects the previous suggestion in the suggestions widget when the widget is visible.
+    "key": "ctrl+k",
+    "command": "selectPrevSuggestion",
+    "when": "suggestWidgetVisible"
+  },
+  {
+    // "ctrl+j": Selects the next item in the Quick Open dialog when it is open.
+    "key": "ctrl+j",
+    "command": "workbench.action.quickOpenSelectNext",
+    "when": "inQuickOpen"
+  },
+  {
+    // "ctrl+k": Selects the previous item in the Quick Open dialog when it is open.
+    "key": "ctrl+k",
+    "command": "workbench.action.quickOpenSelectPrevious",
+    "when": "inQuickOpen"
+  },
+
+   
+
    // WORD MATCHES
    // Ctrl+shift+l = all matches
    {
