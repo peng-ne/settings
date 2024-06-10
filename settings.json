@@ -1,13 +1,12 @@
 {
-  // Font
+  // FONT
   "editor.fontFamily": "GeistMono Nerd Font",
   "editor.suggest.insertMode": "replace",
-  "terminal.integrated.fontFamily": "",
   "editor.fontLigatures": true,
-  "editor.linkedEditing": true,
-  // Theme
-  "workbench.iconTheme": "vscode-icons",
+  "editor.fontSize": 15,
+  "workbench.iconTheme": "bearded-icons",
   "workbench.colorTheme": "Bearded Theme Vivid Black",
+
   // UI
   "workbench.activityBar.location": "bottom",
   "editor.minimap.enabled": false,
@@ -15,26 +14,41 @@
   "window.menuBarVisibility": "toggle",
   "window.commandCenter": false,
   "workbench.layoutControl.enabled": false,
-  // Mist
-  "update.showReleaseNotes": false,
-  "zenMode.hideLineNumbers": false,
-  "editor.lineNumbers": "relative",
-  "javascript.updateImportsOnFileMove.enabled": "always",
+
+  //MIST
   "editor.formatOnSave": true,
-  "launch": {},
-  "[json]": {},
-  // Extensions
+  "workbench.startupEditor": "none",
+  "explorer.compactFolders": false,
+  "editor.tabSize": 2,
+  "editor.linkedEditing": true,
+  "breadcrumbs.filePath": "off",
+  "files.trimTrailingWhitespace": true,
+
+  //EXTENSION
   "editor.bracketPairColorization.enabled": true,
   "editor.guides.bracketPairs": true,
-  // VIM SETTING
-  "vim.leader": "<Space>",
-  "vim.foldfix": true,
-  "vim.highlightedyank.enable": true,
+  "livePreview.openPreviewTarget": "External Browser",
+  "workbench.editor.editorActionsLocation": "hidden",
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+
+  //VIM SETTING
   "vim.useCtrlKeys": true,
-  "vim.incsearch": true,
-  "vim.easymotion": true,
-  "vim.hlsearch": true,
   "vim.useSystemClipboard": true,
+  "vim.easymotion": true,
+  "vim.incsearch": true,
+  "vim.hlsearch": true,
+  "editor.lineNumbers": "relative",
+  "vim.foldfix": true,
+  "vim.insertModeKeyBindings": [
+    {
+      "before": ["j", "j"],
+      "after": ["<Esc>"]
+    },
+    {
+      "before": ["i"],
+      "after": ["<Esc>", "i"]
+    }
+  ],
   "vim.normalModeKeyBindingsNonRecursive": [
     // switch b/w buffers
     {
@@ -45,126 +59,102 @@
       "before": ["<S-l>"],
       "commands": [":bnext"]
     },
-    // splits
     {
-      "before": ["leader", "v"],
-      "commands": [":vsplit"]
+      "before": ["<leader>", "d"],
+      "after": ["d", "d"]
     },
     {
-      "before": ["leader", "s"],
-      "commands": [":split"]
-    },
-    // panes
+      "before": ["K"],
+      "commands": ["lineBreakInsert"],
+      "silent": true
+    }
+  ],
+  "vim.leader": "<space>",
+  "vim.handleKeys": {
+    "<C-f>": false,
+    "<C-w>": false
+  },
+  "extensions.experimental.affinity": {
+    "vscodevim.vim": 1
+  }
+}
+{
+  // FONT
+  "editor.fontFamily": "GeistMono Nerd Font",
+  "editor.suggest.insertMode": "replace",
+  "editor.fontLigatures": true,
+  "editor.fontSize": 15,
+  "workbench.iconTheme": "bearded-icons",
+  "workbench.colorTheme": "Bearded Theme Vivid Black",
+
+  // UI
+  "workbench.activityBar.location": "bottom",
+  "editor.minimap.enabled": false,
+  "breadcrumbs.enabled": false,
+  "window.menuBarVisibility": "toggle",
+  "window.commandCenter": false,
+  "workbench.layoutControl.enabled": false,
+
+  //MIST
+  "editor.formatOnSave": true,
+  "workbench.startupEditor": "none",
+  "explorer.compactFolders": false,
+  "editor.tabSize": 2,
+  "editor.linkedEditing": true,
+  "breadcrumbs.filePath": "off",
+  "files.trimTrailingWhitespace": true,
+
+  //EXTENSION
+  "editor.bracketPairColorization.enabled": true,
+  "editor.guides.bracketPairs": true,
+  "livePreview.openPreviewTarget": "External Browser",
+  "workbench.editor.editorActionsLocation": "hidden",
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+
+  //VIM SETTING
+  "vim.useCtrlKeys": true,
+  "vim.useSystemClipboard": true,
+  "vim.easymotion": true,
+  "vim.incsearch": true,
+  "vim.hlsearch": true,
+  "editor.lineNumbers": "relative",
+  "vim.foldfix": true,
+  "vim.insertModeKeyBindings": [
     {
-      "before": ["leader", "h"],
-      "commands": ["workbench.action.focusLeftGroup"]
+      "before": ["j", "j"],
+      "after": ["<Esc>"]
     },
     {
-      "before": ["leader", "j"],
-      "commands": ["workbench.action.focusBelowGroup"]
+      "before": ["i"],
+      "after": ["<Esc>", "i"]
+    }
+  ],
+  "vim.normalModeKeyBindingsNonRecursive": [
+    // switch b/w buffers
+    {
+      "before": ["<S-h>"],
+      "commands": [":bprevious"]
     },
     {
-      "before": ["leader", "k"],
-      "commands": ["workbench.action.focusAboveGroup"]
-    },
-    {
-      "before": ["leader", "l"],
-      "commands": ["workbench.action.focusRightGroup"]
-    },
-    // NICE TO HAVE
-    {
-      "before": ["[", "d"],
-      "commands": ["editor.action.marker.prev"]
-    },
-    {
-      "before": ["]", "d"],
-      "commands": ["editor.action.marker.next"]
-    },
-    {
-      "before": ["<leader>", "c", "a"],
-      "commands": ["editor.action.quickFix"]
-    },
-    {
-      "before": ["leader", "f"],
-      "commands": ["workbench.action.quickOpen"]
-    },
-    {
-      "before": ["leader", "p"],
-      "commands": ["editor.action.formatDocument"]
-    },
-    {
-      "before": ["g", "h"],
-      "commands": ["editor.action.showDefinitionPreviewHover"]
-    },
-    {
-      "before": ["leader", "l", "s"],
-      "commands": ["livePreview.start.externalPreview.atFile"]
-    },
-   {
-      "before": ["<C-e>"],
-      "commands": ["deleteWordRight"]
+      "before": ["<S-l>"],
+      "commands": [":bnext"]
     },
     {
       "before": ["<leader>", "d"],
       "after": ["d", "d"]
     },
     {
-      "before": ["<C-n>"],
-      "commands": [":nohl"]
-    }
-  ],
-  "vim.insertModeKeyBindings": [
-    {
-      "before": ["j", "j"],
-      "after": ["<Esc>"]
-    }
-  ],
-  "vim.visualModeKeyBindings": [
-    // Stay in visual mode while indenting
-    {
-      "before": ["<"],
-      "commands": ["editor.action.outdentLines"]
-    },
-    {
-      "before": [">"],
-      "commands": ["editor.action.indentLines"]
-    },
-    // Move selected lines while staying in visual mode
-    {
-      "before": ["J"],
-      "commands": ["editor.action.moveLinesDownAction"]
-    },
-    {
       "before": ["K"],
-      "commands": ["editor.action.moveLinesUpAction"]
-    },
-    // toggle comment selection
-    {
-      "before": ["leader", "c"],
-      "commands": ["editor.action.commentLine"]
+      "commands": ["lineBreakInsert"],
+      "silent": true
     }
   ],
+  "vim.leader": "<space>",
   "vim.handleKeys": {
-    "<C-a>": false,
-    "<C-d>": false,
-    "<C-c>": false,
-    "<C-x>": false,
-    "<C-f>": false
+    "<C-f>": false,
+    "<C-w>": false
   },
-  "[html]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[css]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "workbench.startupEditor": "none",
-  "livePreview.openPreviewTarget": "External Browser",
-  "editor.fontSize": 15,
-  "workbench.editor.editorActionsLocation": "hidden",
-  "security.workspace.trust.untrustedFiles": "open",
-  "livePreview.notifyOnOpenLooseFile": false,
-  "settingsSync.ignoredSettings": [
-
-  ],
-  "settingsSync.ignoredExtensions": [],
+  "extensions.experimental.affinity": {
+    "vscodevim.vim": 1
+  }
 }
