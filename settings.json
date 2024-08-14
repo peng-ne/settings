@@ -1,82 +1,55 @@
 {
-  // FONT
-  "editor.fontFamily": "GeistMono Nerd Font",
-  "editor.suggest.insertMode": "replace",
-  "editor.fontLigatures": true,
-  "editor.fontSize": 15,
-  "workbench.iconTheme": "bearded-icons",
-  "workbench.colorTheme": "Bearded Theme Vivid Black",
+    //  FONT
+    "editor.fontFamily": "GeistMono Nerd Font",
+    "editor.suggest.insertMode": "replace",
+    "editor.fontLigatures": true,
+    "editor.fontSize": 16,
+    "workbench.colorTheme": "Bearded Theme Vivid Black",
+    //   UI
+    "workbench.activityBar.location": "bottom",
+    "editor.minimap.enabled": true,
+    "breadcrumbs.enabled": false,
+    "window.menuBarVisibility": "toggle",
+    "window.commandCenter": false,
+    "workbench.layoutControl.enabled": false,
+    //MIST
+    "editor.formatOnSave": true,
+    "workbench.startupEditor": "none",
+    "explorer.compactFolders": false,
+    "editor.tabSize": 2,
+    "editor.linkedEditing": true,
+    "breadcrumbs.filePath": "off",
+    "files.trimTrailingWhitespace": true,
 
-  // UI
-  "workbench.activityBar.location": "bottom",
-  "editor.minimap.enabled": false,
-  "breadcrumbs.enabled": false,
-  "window.menuBarVisibility": "toggle",
-  "window.commandCenter": false,
-  "workbench.layoutControl.enabled": false,
-
-  //MIST
-  "editor.formatOnSave": true,
-  "workbench.startupEditor": "none",
-  "explorer.compactFolders": false,
-  "editor.tabSize": 2,
-  "editor.linkedEditing": true,
-  "breadcrumbs.filePath": "off",
-  "files.trimTrailingWhitespace": true,
-
-  //EXTENSION
-  "editor.bracketPairColorization.enabled": true,
-  "editor.guides.bracketPairs": true,
-  "livePreview.openPreviewTarget": "External Browser",
-  "workbench.editor.editorActionsLocation": "hidden",
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
-
-  //VIM SETTING
-  "vim.useCtrlKeys": true,
-  "vim.useSystemClipboard": true,
-  "vim.easymotion": true,
-  "vim.incsearch": true,
-  "vim.hlsearch": true,
-  "editor.lineNumbers": "relative",
-  "vim.foldfix": true,
-  "vim.insertModeKeyBindings": [
-    {
-      "before": ["j", "j"],
-      "after": ["<Esc>"]
-    },
-    {
-      "before": ["i"],
-      "after": ["<Esc>", "i"]
-    }
-  ],
-  "vim.normalModeKeyBindingsNonRecursive": [
-    // switch b/w buffers
-    {
-      "before": ["<S-h>"],
-      "commands": [":bprevious"]
-    },
-    {
-      "before": ["<S-l>"],
-      "commands": [":bnext"]
-    },
-    {
-      "before": ["<leader>", "d"],
-      "after": ["d", "d"]
-    },
-    {
-      "before": ["K"],
-      "commands": ["lineBreakInsert"],
-      "silent": true
-    }
-  ],
-  "vim.leader": "<space>",
-  "vim.handleKeys": {
-    "<C-f>": false,
-    "<C-w>": false
-  },
-  "extensions.experimental.affinity": {
-    "vscodevim.vim": 1
-  }
+    //EXTENSION
+    "editor.bracketPairColorization.enabled": true,
+    "livePreview.openPreviewTarget": "External Browser",
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "explorer.confirmDelete": false,
+    "cSpell.language": "en,vi",
+    "better-comments.multilineComments": true,
+    "workbench.sideBar.location": "right",
+    // BLOCKMAN
+    "editor.inlayHints.enabled": "off",
+    "editor.guides.indentation": true,
+    "editor.guides.bracketPairs": true,
+    "editor.wordWrap": "on",
+    "diffEditor.wordWrap": "on",
+    "blockman.n26AnalyzeIndentDedentTokens": false,
+    "blockman.n06CustomColorOfDepth1": "none",
+    "blockman.n05CustomColorOfDepth0": "none",
+    "blockman.n08CustomColorOfDepth3": "none",
+    "blockman.n10CustomColorOfDepth5": "none",
+    "blockman.n12CustomColorOfDepth7": "none",
+    "blockman.n13CustomColorOfDepth8": "none",
+    "blockman.n14CustomColorOfDepth9": "none",
+    "blockman.n11CustomColorOfDepth6": "none",
+    "blockman.n07CustomColorOfDepth2": "none",
+    "blockman.n09CustomColorOfDepth4": "none",
+    "blockman.n15CustomColorOfDepth10": "none",
+    "blockman.n27AlsoRenderBlocksInsideSingleLineAreas": true,
+    "blockman.n17CustomColorOfFocusedBlock": "none",
+    "prettier.tabWidth": 4,
+    "blockman.n04Sub05MinDistanceBetweenRightSideEdges": 4,
+    "blockman.n19CustomColorOfBlockBorder": "rgba(0, 0, 0, 0.178)"
 }
-
-
