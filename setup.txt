@@ -1,0 +1,47 @@
+1. Tối ưu tốc độ tải và Cập nhật hệ thống
+Giúp lệnh dnf tải nhiều gói cùng lúc và chọn máy chủ nhanh nhất, sau đó cập nhật toàn bộ hệ thống.
+
+Bash
+echo -e "max_parallel_downloads=10\nfastestmirror=True" | sudo tee -a /etc/dnf/dnf.conf
+sudo dnf upgrade --refresh -y
+2. Kích hoạt RPM Fusion và Flathub
+Mở khóa các phần mềm, driver bản quyền và kho ứng dụng Flatpak lớn nhất.
+
+Bash
+# Cài đặt RPM Fusion (Free & Non-Free)
+sudo dnf install https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm -y
+
+# Thêm kho Flathub
+flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+3. Cài đặt Codec Đa phương tiện
+Đảm bảo KDE, trình duyệt và các ứng dụng phát được mọi định dạng âm thanh/video (H.264, MP4...).
+
+Bash
+sudo dnf groupupdate multimedia --setop="install_weak_deps=False" --exclude=PackageKit-gstreamer-plugin -y
+sudo dnf groupupdate sound-and-video -y
+4. Thiết lập Môi trường Lập trình (Web & Backend)
+Cài đặt nhanh các công cụ thiết yếu để chạy code và khởi tạo các service (như Supabase) qua container.
+
+Cơ bản & Docker:
+
+Bash
+# Cài đặt Git, Node.js và thêm kho Docker
+sudo dnf install git nodejs npm dnf-plugins-core -y
+sudo dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
+
+# Cài đặt Docker
+sudo dnf install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
+sudo systemctl enable --now docker
+sudo usermod -aG docker $USER
+Visual Studio Code:
+
+Bash
+sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
+sudo sh -c 'echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" > /etc/yum.repos.d/vscode.repo'
+sudo dnf install code -y
+5. Driver Card Đồ Họa (Chỉ chạy nếu dùng card rời NVIDIA)
+KDE Plasma cần driver chính thức để các hiệu ứng (KWin) hoạt động không bị giật lag.
+
+Bash
+sudo dnf install akmod-nvidia xorg-x11-drv-nvidia-cuda -y
+Lưu ý cuối cùng: Sau khi chạy xong toàn bộ các lệnh trên, hãy gõ reboot để khởi động lại máy. Driver, nhân Linux mới, các quyền của Docker và giao diện KDE sẽ được đồng bộ và hoạt động trơn tru.
