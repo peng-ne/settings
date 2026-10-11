@@ -1,0 +1,26 @@
+[Version]
+Signature="$WINDOWS NT$"
+Provider=%Mfg%
+Class=Monitor
+ClassGuid={4d36e96e-e325-11ce-bfc1-08002be10318}
+DriverVer=10/11/2026,1.0.0.0
+
+[Manufacturer]
+%Mfg%=Models,NTx86,NTamd64
+
+[Models.NTx86]
+%DeviceName%=CustomMonitor.Install, MONITOR\VBOX0001
+
+[Models.NTamd64]
+%DeviceName%=CustomMonitor.Install, MONITOR\VBOX0001
+
+[CustomMonitor.Install]
+Include=infstr.inf
+Needs=Monitor.Install
+
+[CustomMonitor.Install.AddReg]
+HKR,"MODES\1920,1080",Mode1,,"30.0-135.0,55.0-144.0,+,+"
+
+[Strings]
+Mfg="Custom"
+DeviceName="144Hz Custom Monitor"
