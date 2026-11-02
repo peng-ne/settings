@@ -1,0 +1,66 @@
+#Persistent
+#SingleInstance Force
+
+global saved_id := ""
+
+; --------------------------------------------------------
+; NÚT 1 (Ctrl + Z): COPY ID + CHỤP LAST REGION + CHUYỂN TELEGRAM
+; --------------------------------------------------------
+^z::
+{
+    global saved_id
+    
+    ; 1. Copy ID đang bôi đen
+    Clipboard := ""
+    Send, ^c
+    ClipWait, 0.5
+    saved_id := Clipboard
+    
+    ; 2. Chụp lại vùng cũ (Last Region) qua ShareX (Shift + PrintScreen)
+    Send, +{PrintScreen}
+    Sleep, 500
+    
+    ; 3. Tự động chuyển sang cửa sổ Telegram
+    if WinExist("ahk_exe Telegram.exe")
+    {
+        WinActivate ahk_exe Telegram.exe
+    }
+    
+    SoundBeep, 750, 100
+    return
+}
+
+; --------------------------------------------------------
+; NÚT 2 (Ctrl + X): DÁN ẢNH + ID + 456M VÀ GỬI
+; --------------------------------------------------------
+^x::
+{
+    global saved_id
+    
+    if (saved_id = "")
+    {
+        MsgBox, 48, Cảnh báo, Bạn chưa bấm Ctrl + Z để copy ID và chụp ảnh!
+        return
+    }
+    
+    if WinExist("ahk_exe Telegram.exe")
+    {
+        WinActivate ahk_exe Telegram.exe
+        Sleep, 100
+    }
+    
+    ; Dán ảnh
+    Send, ^v
+    Sleep, 250
+    
+    ; Điền ID + 456M
+    SendInput, %saved_id% 456M
+    Sleep, 150
+    
+    ; Bấm Enter gửi
+    Send, {Enter}
+    
+    saved_id := ""
+    SoundBeep, 1200, 150
+    return
+}
