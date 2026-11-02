@@ -33,15 +33,16 @@ global saved_id := ""
 }
 
 ; --------------------------------------------------------
-; NÚT 2 (Ctrl + X): DÁN ẢNH + ID + 456M VÀ GỬI (ĐÃ SỬA LỖI)
+; NÚT 2 (Ctrl + X): DÁN ẢNH + ID + 456M (KHÔNG HIỆN MSGBOX, KHÔNG TỰ ENTER)
 ; --------------------------------------------------------
 ^x::
 {
     global saved_id
     
+    ; Nếu chưa copy ID thì bỏ qua, không báo lỗi MsgBox
     if (saved_id == "")
     {
-        MsgBox("Bạn chưa bấm Ctrl + Z để copy ID và chụp ảnh!", "Cảnh báo", 48)
+        SoundBeep(400, 150)
         return
     }
     
@@ -51,22 +52,16 @@ global saved_id := ""
         Sleep(200)
     }
     
-    ; 1. Dán ảnh vào cửa sổ chat
+    ; 1. Dán ảnh vào cửa sổ chat Telegram
     Send("^v")
-    
-    ; 2. Tăng thời gian chờ (600ms) để Telegram hiện popup/khung preview ảnh và khung Caption sẵn sàng
     Sleep(600)
     
-    ; 3. Đưa chuỗi ID + 456M vào bộ nhớ tạm rồi dán trực tiếp (Đảm bảo 100% không bị mất chữ)
+    ; 2. Đưa chuỗi ID + 456M vào bộ nhớ tạm rồi dán trực tiếp
     A_Clipboard := saved_id " 456M"
     Sleep(100)
     Send("^v")
     
-    ; 4. Đợi dán xong chữ rồi mới gửi
-    Sleep(300)
-    Send("{Enter}")
-    
-    ; Reset dữ liệu
+    ; Reset dữ liệu sau khi dán xong (Không bấm Send Enter)
     saved_id := ""
     SoundBeep(1200, 150)
 }
