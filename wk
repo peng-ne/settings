@@ -1,4 +1,4 @@
-#Persistent
+#Requires AutoHotkey v2.0
 #SingleInstance Force
 
 global saved_id := ""
@@ -11,23 +11,25 @@ global saved_id := ""
     global saved_id
     
     ; 1. Copy ID đang bôi đen
-    Clipboard := ""
-    Send, ^c
-    ClipWait, 0.5
-    saved_id := Clipboard
+    A_Clipboard := ""
+    Send("^c")
+    if !ClipWait(0.5)
+    {
+        SoundBeep(500, 200)
+    }
+    saved_id := A_Clipboard
     
     ; 2. Chụp lại vùng cũ (Last Region) qua ShareX (Shift + PrintScreen)
-    Send, +{PrintScreen}
-    Sleep, 500
+    Send("+{PrintScreen}")
+    Sleep(500)
     
     ; 3. Tự động chuyển sang cửa sổ Telegram
     if WinExist("ahk_exe Telegram.exe")
     {
-        WinActivate ahk_exe Telegram.exe
+        WinActivate("ahk_exe Telegram.exe")
     }
     
-    SoundBeep, 750, 100
-    return
+    SoundBeep(750, 100)
 }
 
 ; --------------------------------------------------------
@@ -37,30 +39,29 @@ global saved_id := ""
 {
     global saved_id
     
-    if (saved_id = "")
+    if (saved_id == "")
     {
-        MsgBox, 48, Cảnh báo, Bạn chưa bấm Ctrl + Z để copy ID và chụp ảnh!
+        MsgBox("Bạn chưa bấm Ctrl + Z để copy ID và chụp ảnh!", "Cảnh báo", 48)
         return
     }
     
     if WinExist("ahk_exe Telegram.exe")
     {
-        WinActivate ahk_exe Telegram.exe
-        Sleep, 100
+        WinActivate("ahk_exe Telegram.exe")
+        Sleep(100)
     }
     
     ; Dán ảnh
-    Send, ^v
-    Sleep, 250
+    Send("^v")
+    Sleep(250)
     
     ; Điền ID + 456M
-    SendInput, %saved_id% 456M
-    Sleep, 150
+    SendText(saved_id " 456M")
+    Sleep(150)
     
     ; Bấm Enter gửi
-    Send, {Enter}
+    Send("{Enter}")
     
     saved_id := ""
-    SoundBeep, 1200, 150
-    return
+    SoundBeep(1200, 150)
 }
