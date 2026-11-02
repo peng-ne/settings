@@ -19,11 +19,11 @@ global saved_id := ""
     }
     saved_id := A_Clipboard
     
-    ; 2. Chụp lại vùng cũ (Last Region) qua ShareX (Shift + PrintScreen)
+    ; 2. Chụp lại vùng cũ qua ShareX (Shift + PrintScreen)
     Send("+{PrintScreen}")
     Sleep(500)
     
-    ; 3. Tự động chuyển sang cửa sổ Telegram
+    ; 3. Chuyển sang cửa sổ Telegram
     if WinExist("ahk_exe Telegram.exe")
     {
         WinActivate("ahk_exe Telegram.exe")
@@ -33,7 +33,7 @@ global saved_id := ""
 }
 
 ; --------------------------------------------------------
-; NÚT 2 (Ctrl + X): DÁN ẢNH + ID + 456M VÀ GỬI
+; NÚT 2 (Ctrl + X): DÁN ẢNH + ID + 456M VÀ GỬI (ĐÃ SỬA LỖI)
 ; --------------------------------------------------------
 ^x::
 {
@@ -48,20 +48,25 @@ global saved_id := ""
     if WinExist("ahk_exe Telegram.exe")
     {
         WinActivate("ahk_exe Telegram.exe")
-        Sleep(100)
+        Sleep(200)
     }
     
-    ; Dán ảnh
+    ; 1. Dán ảnh vào cửa sổ chat
     Send("^v")
-    Sleep(250)
     
-    ; Điền ID + 456M
-    SendText(saved_id " 456M")
-    Sleep(150)
+    ; 2. Tăng thời gian chờ (600ms) để Telegram hiện popup/khung preview ảnh và khung Caption sẵn sàng
+    Sleep(600)
     
-    ; Bấm Enter gửi
+    ; 3. Đưa chuỗi ID + 456M vào bộ nhớ tạm rồi dán trực tiếp (Đảm bảo 100% không bị mất chữ)
+    A_Clipboard := saved_id " 456M"
+    Sleep(100)
+    Send("^v")
+    
+    ; 4. Đợi dán xong chữ rồi mới gửi
+    Sleep(300)
     Send("{Enter}")
     
+    ; Reset dữ liệu
     saved_id := ""
     SoundBeep(1200, 150)
 }
