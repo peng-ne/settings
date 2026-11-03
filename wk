@@ -1,50 +1,131 @@
 #Requires AutoHotkey v2.0
 
+; Tự động chọn đúng thư mục chứa file script để nạp file ảnh
+SetWorkingDir(A_ScriptDir)
+
 CoordMode("Pixel", "Client")
 CoordMode("Mouse", "Client")
 
 ; ========================================================
-; PHÍM TẮT F8: BẬT / TẮT TỰ ĐỘNG BÔI TRƠN
+; CHỨC NĂNG 1: BÔI ĐEN -> COPY -> TAB 2 -> DÁN -> TÌM KIẾM
+; Phím tắt: Ctrl + Shift + E
+; ========================================================
+^+e:: {
+    ; 1. Xóa sạch bộ nhớ tạm và gửi lệnh Copy
+    A_Clipboard := ""
+    Send("^c")
+    if !ClipWait(1) {
+        return ; Bỏ qua nếu không bôi đen/copy được chữ
+    }
+
+    ; 2. Chuyển sang Tab 2 trên trình duyệt Edge
+    Send("^2")
+    Sleep(Random(200, 300))
+
+    ; 3. Click vào ô tìm kiếm (Tọa độ 723, 170)
+    ExecuteClick(723, 170)
+    Sleep(Random(100, 150))
+
+    ; 4. Bấm Ctrl + A và Backspace để xóa sạch nội dung cũ
+    Send("^a")
+    Sleep(40)
+    Send("{BS}")
+    Sleep(Random(60, 100))
+
+    ; 5. Dán nội dung mới vừa copy
+    Send("^v")
+    Sleep(Random(100, 150))
+
+    ; 6. Click vào nút Tìm kiếm (Tọa độ 582, 261)
+    ExecuteClick(582, 261)
+}
+
+; ========================================================
+; CHỨC NĂNG 2: AUTO MỞ Ổ KHÓA + ĐẾM 5 ĐỒNG XU ĐỂ DỪNG
+; Phím tắt: F8 (Bật / Tắt)
 ; ========================================================
 F8:: {
     static isAutoRunning := false
     isAutoRunning := !isAutoRunning
 
     if isAutoRunning {
-        SetTimer(MainLoop, 4000) ; Tự động chạy mỗi 4 giây
-        SoundBeep(1500, 190)     ; Âm thanh báo BẬT
+        SetTimer(MainLoop, Random(2000, 3000)) ; Vòng lặp từ 2 đến 3 giây
+        SoundBeep(1500, 190) ; Tiếng bíp báo BẬT
     } else {
         SetTimer(MainLoop, 0)
-        SoundBeep(370, 200)      ; Âm thanh báo TẮT
+        SoundBeep(370, 200)  ; Tiếng bíp báo TẮT
     }
 }
 
-; ========================================================
-; VÒNG LẶP CHÍNH (LIÊN KẾT EDGE + CLICK TỰ NHIÊN)
-; ========================================================
 MainLoop() {
-    ; 1. Bắt buộc kiểm tra cửa sổ Microsoft Edge đang mở và kích hoạt
-    if !WinActive("ahk_exe msedge.exe") {
+    ; Tọa độ khung vùng quét chứa ổ khóa và đồng xu (X1, Y1, X2, Y2)
+    x1 := 1350
+    y1 := 300
+    x2 := 1450
+    y2 := 820
+
+    ; 1. KIỂM TRA ĐIỀU KIỆN ĐỦ 5 ĐỒNG XU NẰM TRONG VÙNG QUÉT -> DỪNG TẤT CẢ
+    if (CountIconsOnScreen(x1, y1, x2, y2, "*90 dongtien.png") >= 5) {
+        SetTimer(MainLoop, 0)
+        SoundBeep(1000, 150)
+        Sleep(80)
+        SoundBeep(1000, 150)
+        Sleep(80)
+        SoundBeep(2000, 350)
         return
     }
 
-    ; 2. Thực hiện click tự động bôi trơn tại vị trí nút Làm mới (1495, 195)
+    ; 2. NẾU CÓ Ổ KHÓA -> BẤM HẾT TẤT CẢ Ổ KHÓA RỒI BẤM SPACE ĐỂ MỞ
+    foundX := 0
+    foundY := 0
+    hasLockedItem := false
+
+    while ImageSearch(&foundX, &foundY, x1, y1, x2, y2, "*90 okhoa.png") {
+        hasLockedItem := true
+        ExecuteClick(foundX, foundY) ; Click trực tiếp vị trí ổ khóa
+        Sleep(Random(100, 150))
+    }
+
+    ; Nếu vừa bấm xong các ổ khóa thì gửi lệnh Space để mở
+    if (hasLockedItem) {
+        Send("{Space}")
+        Sleep(Random(200, 300))
+        return ; Kết thúc lượt này để đợi vòng lặp sau
+    }
+
+    ; 3. NẾU KHÔNG CÓ Ổ KHÓA -> CLICK NÚT LÀM MỚI (TỌA ĐỘ 1495, 195)
     ExecuteClick(1495, 195)
 }
 
 ; ========================================================
-; HÀM MÔ PHỎNG THAO TÁC CHUỘT TAY NGƯỜI (TỰ NHIÊN / GIẢM LỖI ZOOM)
+; HÀM NHẤP CHUỘT TỰ NHIÊN (TỐC ĐỘ VỪA PHẢI, TRÁNH GIẬT/LỖI MÁY)
 ; ========================================================
 ExecuteClick(posX, posY) {
-    ; Tạo độ lệch ngẫu nhiên 1-2 pixel để không bấm trùng 1 điểm tuyệt đối
-    randomX := posX + Random(-2, 2)
-    randomY := posY + Random(-2, 2)
+    ; Tạo độ lệch ngẫu nhiên 1 pixel để không bấm cố định một điểm tuyệt đối
+    randomX := posX + Random(-1, 1)
+    randomY := posY + Random(-1, 1)
 
-    ; Di chuyển chuột từ từ (Speed = 12: mượt, tự nhiên trên luồng share Zoom)
-    MouseMove(randomX, randomY, 12)
+    ; Tốc độ 7: Chuột lướt nhanh vừa phải, nhìn tự nhiên không bị giật như máy
+    MouseMove(randomX, randomY, 7)
     
-    ; Nghỉ ngẫu nhiên mô phỏng phản xạ tay người trước và sau khi click
-    Sleep(Random(100, 160))
+    Sleep(Random(60, 100))
     Click(randomX, randomY)
-    Sleep(Random(120, 180))
+    Sleep(Random(80, 120))
+}
+
+; ========================================================
+; HÀM ĐẾM SỐ LƯỢNG ĐỒNG XU TRÊN MÀN HÌNH
+; ========================================================
+CountIconsOnScreen(scanX1, scanY1, scanX2, scanY2, imageFile) {
+    count := 0
+    currY := scanY1
+    foundX := 0
+    foundY := 0
+
+    while (currY < scanY2) && ImageSearch(&foundX, &foundY, scanX1, currY, scanX2, scanY2, imageFile) {
+        count++
+        currY := foundY + 15
+    }
+
+    return count
 }
