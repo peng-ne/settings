@@ -1,5 +1,8 @@
 #Requires AutoHotkey v2.0
 
+; Ép AHK nhận đúng thư mục chứa file ảnh
+SetWorkingDir(A_ScriptDir)
+
 CoordMode("Pixel", "Client")
 CoordMode("Mouse", "Client")
 
@@ -11,31 +14,26 @@ F8:: {
     isAutoRunning := !isAutoRunning
 
     if isAutoRunning {
-        SetTimer(MainLoop, 4000) ; Quét và bấm nút làm mới mỗi 4 giây
-        SoundBeep(1500, 190)
+        SetTimer(MainLoop, 4000) ; Quét và làm mới mỗi 4 giây
+        SoundBeep(1500, 190) ; Âm thanh khi BẬT
     } else {
         SetTimer(MainLoop, 0)
-        SoundBeep(370, 200)
+        SoundBeep(370, 200)  ; Âm thanh khi TẮT
     }
 }
 
 ; ========================================================
-; VÒNG LẶP CHÍNH
+; VÒNG LẶP CHÍNH (ĐÃ XÓA WINACTIVE)
 ; ========================================================
 MainLoop() {
-    ; Chỉ chạy khi cửa sổ Edge đang mở
-    if !WinActive("ahk_exe msedge.exe") {
-        return
-    }
-
-    ; Phạm vi quét vùng chọn (X1, Y1, X2, Y2)
+    ; Tọa độ khung vùng quét (X1, Y1, X2, Y2)
     x1 := 1350
     y1 := 300
     x2 := 1450
     y2 := 820
 
     ; 1. NẾU ĐỦ 5 ĐỒNG TIỀN -> DỪNG AUTO HOÀN TOÀN
-    if (CountIconsOnScreen(x1, y1, x2, y2, "*60 dongtien.png") >= 5) {
+    if (CountIconsOnScreen(x1, y1, x2, y2, "*90 dongtien.png") >= 5) {
         SetTimer(MainLoop, 0)
         SoundBeep(1000, 200)
         Sleep(100)
@@ -45,18 +43,18 @@ MainLoop() {
         return
     }
 
-    ; 2. NẾU CÓ Ổ KHÓA -> TẬP TRUNG XỬ LÝ Ổ KHÓA VÀ THỰC HIỆN TÌM KIẾM
+    ; 2. NẾU CÓ Ổ KHÓA -> TẬP TRUNG XỬ LÝ Ổ KHÓA VÀ TÌM KIẾM
     foundX := 0
     foundY := 0
-    if ImageSearch(&foundX, &foundY, x1, y1, x2, y2, "*60 okhoa.png") {
-        while WinActive("ahk_exe msedge.exe") && ImageSearch(&foundX, &foundY, x1, y1, x2, y2, "*60 okhoa.png") {
+    if ImageSearch(&foundX, &foundY, x1, y1, x2, y2, "*90 okhoa.png") {
+        while ImageSearch(&foundX, &foundY, x1, y1, x2, y2, "*90 okhoa.png") {
             ExecuteClick(foundX, foundY) ; Click vị trí ổ khóa
             Sleep(Random(150, 250))
         }
         Send("{Enter}")
         Sleep(Random(250, 350))
 
-        ; Thực hiện chuỗi thao tác Copy -> Switch Tab -> Search tự nhiên
+        ; Thực hiện chuỗi thao tác Copy -> Switch Tab -> Search
         ProcessSearchWorkflow()
         return
     }
@@ -66,44 +64,37 @@ MainLoop() {
 }
 
 ; ========================================================
-; THAO TÁC THÊM: COPY - CHUYỂN TAB - DÁN - TÌM KIẾM TỰ NHIÊN
+; THAO TÁC COPY - CHUYỂN TAB - DÁN - TÌM KIẾM
 ; ========================================================
 ProcessSearchWorkflow() {
-    ; 1. Xóa sạch bộ nhớ tạm
     A_Clipboard := ""
     Sleep(50)
 
-    ; 2. Gửi lệnh Copy và chờ dữ liệu mới vào Clipboard[cite: 3]
     Send("^c")
     if !ClipWait(1) {
-        return ; Bỏ qua nếu không copy được gì[cite: 3]
+        return 
     }
 
-    ; 3. Chuyển sang Tab thứ 2 (Ctrl + 2)[cite: 3]
     Send("^2")
     Sleep(Random(280, 350))
 
-    ; 4. Nhấp vào ô tìm kiếm (Tọa độ 723, 170 trong ảnh)[cite: 3]
     ExecuteClick(723, 170)
     Sleep(Random(120, 180))
 
-    ; 5. Xóa sạch nội dung cũ trong ô tìm kiếm[cite: 3]
     Send("^a")
     Sleep(50)
     Send("{BS}")
     Sleep(Random(80, 120))
 
-    ; 6. Dán dữ liệu mới[cite: 3]
     Send("^v")
     Sleep(Random(120, 180))
 
-    ; 7. Click vào nút Tìm kiếm (Tọa độ 582, 261 trong ảnh)[cite: 3]
     ExecuteClick(582, 261)
     Sleep(Random(200, 300))
 }
 
 ; ========================================================
-; HÀM NHẤP CHUỘT TỰ NHIÊN (TẠO ĐỘ LỆCH VÀ DI CHUYỂN MƯỢT)
+; HÀM NHẤP CHUỘT MÔ PHỎNG TAY NGƯỜI
 ; ========================================================
 ExecuteClick(posX, posY) {
     randomX := posX + Random(-2, 2)
