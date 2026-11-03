@@ -1,35 +1,133 @@
 #Requires AutoHotkey v2.0
 
-; Bôi đen đoạn văn bản trước, sau đó nhấn Ctrl + Shift + E
-^+e:: {
+CoordMode("Pixel", "Client")
+CoordMode("Mouse", "Client")
+
+; ========================================================
+; PHÍM TẮT F8: BẬT / TẮT VÒNG LẶP AUTO
+; ========================================================
+F8:: {
+    static isAutoRunning := false
+    isAutoRunning := !isAutoRunning
+
+    if isAutoRunning {
+        SetTimer(MainLoop, 4000) ; Quét và bấm nút làm mới mỗi 4 giây
+        SoundBeep(1500, 190)
+    } else {
+        SetTimer(MainLoop, 0)
+        SoundBeep(370, 200)
+    }
+}
+
+; ========================================================
+; VÒNG LẶP CHÍNH
+; ========================================================
+MainLoop() {
+    ; Chỉ chạy khi cửa sổ Edge đang mở
+    if !WinActive("ahk_exe msedge.exe") {
+        return
+    }
+
+    ; Phạm vi quét vùng chọn (X1, Y1, X2, Y2)
+    x1 := 1350
+    y1 := 300
+    x2 := 1450
+    y2 := 820
+
+    ; 1. NẾU ĐỦ 5 ĐỒNG TIỀN -> DỪNG AUTO HOÀN TOÀN
+    if (CountIconsOnScreen(x1, y1, x2, y2, "*60 dongtien.png") >= 5) {
+        SetTimer(MainLoop, 0)
+        SoundBeep(1000, 200)
+        Sleep(100)
+        SoundBeep(1000, 200)
+        Sleep(100)
+        SoundBeep(2000, 400)
+        return
+    }
+
+    ; 2. NẾU CÓ Ổ KHÓA -> TẬP TRUNG XỬ LÝ Ổ KHÓA VÀ THỰC HIỆN TÌM KIẾM
+    foundX := 0
+    foundY := 0
+    if ImageSearch(&foundX, &foundY, x1, y1, x2, y2, "*60 okhoa.png") {
+        while WinActive("ahk_exe msedge.exe") && ImageSearch(&foundX, &foundY, x1, y1, x2, y2, "*60 okhoa.png") {
+            ExecuteClick(foundX, foundY) ; Click vị trí ổ khóa
+            Sleep(Random(150, 250))
+        }
+        Send("{Enter}")
+        Sleep(Random(250, 350))
+
+        ; Thực hiện chuỗi thao tác Copy -> Switch Tab -> Search tự nhiên
+        ProcessSearchWorkflow()
+        return
+    }
+
+    ; 3. NẾU KHÔNG CÓ Ổ KHÓA -> CLICK NÚT LÀM MỚI (TỌA ĐỘ 1495, 195)
+    ExecuteClick(1495, 195)
+}
+
+; ========================================================
+; THAO TÁC THÊM: COPY - CHUYỂN TAB - DÁN - TÌM KIẾM TỰ NHIÊN
+; ========================================================
+ProcessSearchWorkflow() {
     ; 1. Xóa sạch bộ nhớ tạm
     A_Clipboard := ""
     Sleep(50)
 
-    ; 2. Gửi lệnh Copy và chờ dữ liệu mới vào Clipboard
+    ; 2. Gửi lệnh Copy và chờ dữ liệu mới vào Clipboard[cite: 3]
     Send("^c")
     if !ClipWait(1) {
-        return ; Bỏ qua nếu không copy được gì
+        return ; Bỏ qua nếu không copy được gì[cite: 3]
     }
 
-    ; 3. Chuyển sang Tab thứ 2 (Ctrl + 2)
+    ; 3. Chuyển sang Tab thứ 2 (Ctrl + 2)[cite: 3]
     Send("^2")
-    Sleep(300)
+    Sleep(Random(280, 350))
 
-    ; 4. Nhấp vào ô tìm kiếm (Thay 500, 200 bằng tọa độ thực tế)
-    Click(500, 200)
-    Sleep(150)
+    ; 4. Nhấp vào ô tìm kiếm (Tọa độ 723, 170 trong ảnh)[cite: 3]
+    ExecuteClick(723, 170)
+    Sleep(Random(120, 180))
 
-    ; 5. Xóa sạch nội dung cũ trong ô tìm kiếm
+    ; 5. Xóa sạch nội dung cũ trong ô tìm kiếm[cite: 3]
     Send("^a")
     Sleep(50)
     Send("{BS}")
-    Sleep(100)
+    Sleep(Random(80, 120))
 
-    ; 6. Dán dữ liệu mới
+    ; 6. Dán dữ liệu mới[cite: 3]
     Send("^v")
-    Sleep(150)
+    Sleep(Random(120, 180))
 
-    ; 7. Click vào nút Tìm kiếm (Thay 650, 200 bằng tọa độ thực tế)
-    Click(650, 200)
+    ; 7. Click vào nút Tìm kiếm (Tọa độ 582, 261 trong ảnh)[cite: 3]
+    ExecuteClick(582, 261)
+    Sleep(Random(200, 300))
+}
+
+; ========================================================
+; HÀM NHẤP CHUỘT TỰ NHIÊN (TẠO ĐỘ LỆCH VÀ DI CHUYỂN MƯỢT)
+; ========================================================
+ExecuteClick(posX, posY) {
+    randomX := posX + Random(-2, 2)
+    randomY := posY + Random(-2, 2)
+
+    MouseMove(randomX, randomY, 12)
+    Sleep(Random(100, 160))
+    Click(randomX, randomY)
+    Sleep(Random(120, 180))
+}
+
+; ========================================================
+; HÀM ĐẾM SỐ LƯỢNG BIỂU TƯỢNG ĐỒNG TIỀN
+; ========================================================
+CountIconsOnScreen(scanX1, scanY1, scanX2, scanY2, imageFile) {
+    count := 0
+    currY := scanY1
+    foundX := 0
+    foundY := 0
+
+    while (currY < scanY2) && ImageSearch(&foundX, &foundY, scanX1, currY, scanX2, scanY2, imageFile) {
+        count++
+        currY := foundY + 15
+    }
+
+    return count
 }
