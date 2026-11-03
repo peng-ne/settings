@@ -4,7 +4,7 @@
 ^+e:: {
     ; 1. Xóa sạch bộ nhớ tạm
     A_Clipboard := ""
-    Sleep(50) ; Chờ bộ nhớ tạm xóa hoàn toàn
+    Sleep(50)
 
     ; 2. Gửi lệnh Copy và chờ dữ liệu mới vào Clipboard
     Send("^c")
@@ -20,10 +20,16 @@
     Click(500, 200)
     Sleep(150)
 
-    ; 5. Dán dữ liệu
+    ; 5. Xóa sạch nội dung cũ trong ô tìm kiếm
+    Send("^a")
+    Sleep(50)
+    Send("{BS}")
+    Sleep(100)
+
+    ; 6. Dán dữ liệu mới
     Send("^v")
     Sleep(150)
 
-    ; 6. Click vào nút Tìm kiếm (Thay 650, 200 bằng tọa độ thực tế)
+    ; 7. Click vào nút Tìm kiếm (Thay 650, 200 bằng tọa độ thực tế)
     Click(650, 200)
 }
