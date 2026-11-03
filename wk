@@ -1,67 +1,26 @@
 #Requires AutoHotkey v2.0
-#SingleInstance Force
 
-global saved_id := ""
-
-; --------------------------------------------------------
-; NÚT 1 (Ctrl + Z): COPY ID + CHỤP LAST REGION + CHUYỂN TELEGRAM
-; --------------------------------------------------------
-^z::
-{
-    global saved_id
-    
-    ; 1. Copy ID đang bôi đen
+; Nhấn phím Back trên chuột (XButton1) để kích hoạt
+XButton1:: {
+    ; 1. Xóa bộ nhớ tạm và copy vùng đã bôi đen
     A_Clipboard := ""
     Send("^c")
-    if !ClipWait(0.5)
-    {
-        SoundBeep(500, 200)
+    if !ClipWait(1) {
+        return ; Thoát nếu chưa bôi đen hoặc không copy được
     }
-    saved_id := A_Clipboard
-    
-    ; 2. Chụp lại vùng cũ qua ShareX (Shift + PrintScreen)
-    Send("+{PrintScreen}")
-    Sleep(500)
-    
-    ; 3. Chuyển sang cửa sổ Telegram
-    if WinExist("ahk_exe Telegram.exe")
-    {
-        WinActivate("ahk_exe Telegram.exe")
-    }
-    
-    SoundBeep(750, 100)
-}
 
-; --------------------------------------------------------
-; NÚT 2 (Ctrl + X): DÁN ẢNH + ID + 456M (KHÔNG HIỆN MSGBOX, KHÔNG TỰ ENTER)
-; --------------------------------------------------------
-^x::
-{
-    global saved_id
-    
-    ; Nếu chưa copy ID thì bỏ qua, không báo lỗi MsgBox
-    if (saved_id == "")
-    {
-        SoundBeep(400, 150)
-        return
-    }
-    
-    if WinExist("ahk_exe Telegram.exe")
-    {
-        WinActivate("ahk_exe Telegram.exe")
-        Sleep(200)
-    }
-    
-    ; 1. Dán ảnh vào cửa sổ chat Telegram
+    ; 2. Chuyển sang Tab thứ 2 (Ctrl + 2)
+    Send("^2")
+    Sleep(300)
+
+    ; 3. Nhấp vào ô tìm kiếm (Thay 500, 200 bằng tọa độ thực tế của ô tìm kiếm)
+    Click(500, 200)
+    Sleep(150)
+
+    ; 4. Dán dữ liệu
     Send("^v")
-    Sleep(600)
-    
-    ; 2. Đưa chuỗi ID + 456M vào bộ nhớ tạm rồi dán trực tiếp
-    A_Clipboard := saved_id " 456M"
-    Sleep(100)
-    Send("^v")
-    
-    ; Reset dữ liệu sau khi dán xong (Không bấm Send Enter)
-    saved_id := ""
-    SoundBeep(1200, 150)
+    Sleep(150)
+
+    ; 5. Click vào nút Tìm kiếm (Thay 650, 200 bằng tọa độ thực tế của nút Tìm kiếm)
+    Click(650, 200)
 }
