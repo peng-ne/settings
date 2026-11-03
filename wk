@@ -1,124 +1,50 @@
 #Requires AutoHotkey v2.0
 
-; Ép AHK nhận đúng thư mục chứa file ảnh
-SetWorkingDir(A_ScriptDir)
-
 CoordMode("Pixel", "Client")
 CoordMode("Mouse", "Client")
 
 ; ========================================================
-; PHÍM TẮT F8: BẬT / TẮT VÒNG LẶP AUTO
+; PHÍM TẮT F8: BẬT / TẮT TỰ ĐỘNG BÔI TRƠN
 ; ========================================================
 F8:: {
     static isAutoRunning := false
     isAutoRunning := !isAutoRunning
 
     if isAutoRunning {
-        SetTimer(MainLoop, 4000) ; Quét và làm mới mỗi 4 giây
-        SoundBeep(1500, 190) ; Âm thanh khi BẬT
+        SetTimer(MainLoop, 4000) ; Tự động chạy mỗi 4 giây
+        SoundBeep(1500, 190)     ; Âm thanh báo BẬT
     } else {
         SetTimer(MainLoop, 0)
-        SoundBeep(370, 200)  ; Âm thanh khi TẮT
+        SoundBeep(370, 200)      ; Âm thanh báo TẮT
     }
 }
 
 ; ========================================================
-; VÒNG LẶP CHÍNH (ĐÃ XÓA WINACTIVE)
+; VÒNG LẶP CHÍNH (LIÊN KẾT EDGE + CLICK TỰ NHIÊN)
 ; ========================================================
 MainLoop() {
-    ; Tọa độ khung vùng quét (X1, Y1, X2, Y2)
-    x1 := 1350
-    y1 := 300
-    x2 := 1450
-    y2 := 820
-
-    ; 1. NẾU ĐỦ 5 ĐỒNG TIỀN -> DỪNG AUTO HOÀN TOÀN
-    if (CountIconsOnScreen(x1, y1, x2, y2, "*90 dongtien.png") >= 5) {
-        SetTimer(MainLoop, 0)
-        SoundBeep(1000, 200)
-        Sleep(100)
-        SoundBeep(1000, 200)
-        Sleep(100)
-        SoundBeep(2000, 400)
+    ; 1. Bắt buộc kiểm tra cửa sổ Microsoft Edge đang mở và kích hoạt
+    if !WinActive("ahk_exe msedge.exe") {
         return
     }
 
-    ; 2. NẾU CÓ Ổ KHÓA -> TẬP TRUNG XỬ LÝ Ổ KHÓA VÀ TÌM KIẾM
-    foundX := 0
-    foundY := 0
-    if ImageSearch(&foundX, &foundY, x1, y1, x2, y2, "*90 okhoa.png") {
-        while ImageSearch(&foundX, &foundY, x1, y1, x2, y2, "*90 okhoa.png") {
-            ExecuteClick(foundX, foundY) ; Click vị trí ổ khóa
-            Sleep(Random(150, 250))
-        }
-        Send("{Enter}")
-        Sleep(Random(250, 350))
-
-        ; Thực hiện chuỗi thao tác Copy -> Switch Tab -> Search
-        ProcessSearchWorkflow()
-        return
-    }
-
-    ; 3. NẾU KHÔNG CÓ Ổ KHÓA -> CLICK NÚT LÀM MỚI (TỌA ĐỘ 1495, 195)
+    ; 2. Thực hiện click tự động bôi trơn tại vị trí nút Làm mới (1495, 195)
     ExecuteClick(1495, 195)
 }
 
 ; ========================================================
-; THAO TÁC COPY - CHUYỂN TAB - DÁN - TÌM KIẾM
-; ========================================================
-ProcessSearchWorkflow() {
-    A_Clipboard := ""
-    Sleep(50)
-
-    Send("^c")
-    if !ClipWait(1) {
-        return 
-    }
-
-    Send("^2")
-    Sleep(Random(280, 350))
-
-    ExecuteClick(723, 170)
-    Sleep(Random(120, 180))
-
-    Send("^a")
-    Sleep(50)
-    Send("{BS}")
-    Sleep(Random(80, 120))
-
-    Send("^v")
-    Sleep(Random(120, 180))
-
-    ExecuteClick(582, 261)
-    Sleep(Random(200, 300))
-}
-
-; ========================================================
-; HÀM NHẤP CHUỘT MÔ PHỎNG TAY NGƯỜI
+; HÀM MÔ PHỎNG THAO TÁC CHUỘT TAY NGƯỜI (TỰ NHIÊN / GIẢM LỖI ZOOM)
 ; ========================================================
 ExecuteClick(posX, posY) {
+    ; Tạo độ lệch ngẫu nhiên 1-2 pixel để không bấm trùng 1 điểm tuyệt đối
     randomX := posX + Random(-2, 2)
     randomY := posY + Random(-2, 2)
 
+    ; Di chuyển chuột từ từ (Speed = 12: mượt, tự nhiên trên luồng share Zoom)
     MouseMove(randomX, randomY, 12)
+    
+    ; Nghỉ ngẫu nhiên mô phỏng phản xạ tay người trước và sau khi click
     Sleep(Random(100, 160))
     Click(randomX, randomY)
     Sleep(Random(120, 180))
-}
-
-; ========================================================
-; HÀM ĐẾM SỐ LƯỢNG BIỂU TƯỢNG ĐỒNG TIỀN
-; ========================================================
-CountIconsOnScreen(scanX1, scanY1, scanX2, scanY2, imageFile) {
-    count := 0
-    currY := scanY1
-    foundX := 0
-    foundY := 0
-
-    while (currY < scanY2) && ImageSearch(&foundX, &foundY, scanX1, currY, scanX2, scanY2, imageFile) {
-        count++
-        currY := foundY + 15
-    }
-
-    return count
 }
