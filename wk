@@ -1,26 +1,29 @@
 #Requires AutoHotkey v2.0
 
-; Nhấn phím Back trên chuột (XButton1) để kích hoạt
-XButton1:: {
-    ; 1. Xóa bộ nhớ tạm và copy vùng đã bôi đen
+; Bôi đen đoạn văn bản trước, sau đó nhấn Ctrl + Shift + E
+^+e:: {
+    ; 1. Xóa sạch bộ nhớ tạm
     A_Clipboard := ""
+    Sleep(50) ; Chờ bộ nhớ tạm xóa hoàn toàn
+
+    ; 2. Gửi lệnh Copy và chờ dữ liệu mới vào Clipboard
     Send("^c")
     if !ClipWait(1) {
-        return ; Thoát nếu chưa bôi đen hoặc không copy được
+        return ; Bỏ qua nếu không copy được gì
     }
 
-    ; 2. Chuyển sang Tab thứ 2 (Ctrl + 2)
+    ; 3. Chuyển sang Tab thứ 2 (Ctrl + 2)
     Send("^2")
     Sleep(300)
 
-    ; 3. Nhấp vào ô tìm kiếm (Thay 500, 200 bằng tọa độ thực tế của ô tìm kiếm)
+    ; 4. Nhấp vào ô tìm kiếm (Thay 500, 200 bằng tọa độ thực tế)
     Click(500, 200)
     Sleep(150)
 
-    ; 4. Dán dữ liệu
+    ; 5. Dán dữ liệu
     Send("^v")
     Sleep(150)
 
-    ; 5. Click vào nút Tìm kiếm (Thay 650, 200 bằng tọa độ thực tế của nút Tìm kiếm)
+    ; 6. Click vào nút Tìm kiếm (Thay 650, 200 bằng tọa độ thực tế)
     Click(650, 200)
 }
