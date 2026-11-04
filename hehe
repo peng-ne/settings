@@ -1,0 +1,44 @@
+#Requires AutoHotkey v2.0
+
+SetWorkingDir(A_ScriptDir)
+
+CoordMode("Pixel", "Client")
+CoordMode("Mouse", "Client")
+
+; ========================================================
+; CHỨC NĂNG: BÔI ĐEN -> COPY -> TAB 2 -> DÁN -> TÌM KIẾM
+; Phím tắt: Ctrl + Shift + E
+; ========================================================
+^+e:: {
+    A_Clipboard := ""
+    Send("^c")
+    if !ClipWait(1) {
+        return
+    }
+
+    Send("^2")
+    Sleep(Random(150, 200))
+
+    ExecuteClickFast(967, 204) ; Click Nút 1
+    Sleep(Random(80, 120))
+
+    Send("^a")
+    Sleep(30)
+    Send("{BS}")
+    Sleep(Random(40, 80))
+
+    Send("^v")
+    Sleep(Random(80, 120))
+
+    ExecuteClickFast(724, 309) ; Click Nút 2
+}
+
+; ========================================================
+; HÀM NHẤP CHUỘT SIÊU TỐC (Speed 1)
+; ========================================================
+ExecuteClickFast(posX, posY) {
+    MouseMove(posX, posY, 1) ; Tốc độ di chuột tối đa (Speed 1)
+    Sleep(Random(30, 50))
+    Click(posX, posY)
+    Sleep(Random(40, 60))
+}
