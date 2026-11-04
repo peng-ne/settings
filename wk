@@ -1,6 +1,6 @@
 #Requires AutoHotkey v2.0
 
-; Tự động chọn đúng thư mục chứa file script để nạp file ảnh
+; Ép AHK nhận đúng thư mục chứa file script để nạp file ảnh ổ khóa
 SetWorkingDir(A_ScriptDir)
 
 CoordMode("Pixel", "Client")
@@ -11,37 +11,31 @@ CoordMode("Mouse", "Client")
 ; Phím tắt: Ctrl + Shift + E
 ; ========================================================
 ^+e:: {
-    ; 1. Xóa sạch bộ nhớ tạm và gửi lệnh Copy
     A_Clipboard := ""
     Send("^c")
     if !ClipWait(1) {
-        return ; Bỏ qua nếu không bôi đen/copy được chữ
+        return
     }
 
-    ; 2. Chuyển sang Tab 2 trên trình duyệt Edge
     Send("^2")
     Sleep(Random(200, 300))
 
-    ; 3. Click vào ô tìm kiếm (Tọa độ 723, 170)
     ExecuteClick(723, 170)
     Sleep(Random(100, 150))
 
-    ; 4. Bấm Ctrl + A và Backspace để xóa sạch nội dung cũ
     Send("^a")
     Sleep(40)
     Send("{BS}")
     Sleep(Random(60, 100))
 
-    ; 5. Dán nội dung mới vừa copy
     Send("^v")
     Sleep(Random(100, 150))
 
-    ; 6. Click vào nút Tìm kiếm (Tọa độ 582, 261)
     ExecuteClick(582, 261)
 }
 
 ; ========================================================
-; CHỨC NĂNG 2: AUTO MỞ Ổ KHÓA + ĐẾM 5 ĐỒNG XU ĐỂ DỪNG
+; CHỨC NĂNG 2: MỞ TẤT CẢ Ổ KHÓA + BẤM SPACE -> HẾT KHÓA MỚI CLICK LÀM MỚI
 ; Phím tắt: F8 (Bật / Tắt)
 ; ========================================================
 F8:: {
@@ -49,83 +43,54 @@ F8:: {
     isAutoRunning := !isAutoRunning
 
     if isAutoRunning {
-        SetTimer(MainLoop, Random(2000, 3000)) ; Vòng lặp từ 2 đến 3 giây
-        SoundBeep(1500, 190) ; Tiếng bíp báo BẬT
+        SetTimer(MainLoop, 300) ; Quét liên tục mỗi 0.3 giây
+        SoundBeep(1500, 190)    ; Tiếng bíp báo BẬT
     } else {
         SetTimer(MainLoop, 0)
-        SoundBeep(370, 200)  ; Tiếng bíp báo TẮT
+        SoundBeep(370, 200)     ; Tiếng bíp báo TẮT
     }
 }
 
 MainLoop() {
-    ; Tọa độ khung vùng quét chứa ổ khóa và đồng xu (X1, Y1, X2, Y2)
-    x1 := 1350
-    y1 := 300
-    x2 := 1450
-    y2 := 820
+    ; Tọa độ khung vùng quét cột 操作 (X1, Y1, X2, Y2)
+    x1 := 1300
+    y1 := 250
+    x2 := 1480
+    y2 := 850
 
-    ; 1. KIỂM TRA ĐIỀU KIỆN ĐỦ 5 ĐỒNG XU NẰM TRONG VÙNG QUÉT -> DỪNG TẤT CẢ
-    if (CountIconsOnScreen(x1, y1, x2, y2, "*90 dongtien.png") >= 5) {
-        SetTimer(MainLoop, 0)
-        SoundBeep(1000, 150)
-        Sleep(80)
-        SoundBeep(1000, 150)
-        Sleep(80)
-        SoundBeep(2000, 350)
-        return
-    }
-
-    ; 2. NẾU CÓ Ổ KHÓA -> BẤM HẾT TẤT CẢ Ổ KHÓA RỒI BẤM SPACE ĐỂ MỞ
     foundX := 0
     foundY := 0
-    hasLockedItem := false
 
-    while ImageSearch(&foundX, &foundY, x1, y1, x2, y2, "*90 okhoa.png") {
-        hasLockedItem := true
-        ExecuteClick(foundX, foundY) ; Click trực tiếp vị trí ổ khóa
-        Sleep(Random(100, 150))
+    ; 1. QUÉT TÌM Ổ KHÓA LOẠI 1 (okhoa1.png)
+    if ImageSearch(&foundX, &foundY, x1, y1, x2, y2, "*80 okhoa1.png") {
+        ExecuteClick(foundX + 3, foundY + 3) ; Click thẳng vào tọa độ tìm thấy
+        Sleep(Random(250, 350))              ; Chờ cửa sổ hiện lên
+
+        Send("{Space}")                      ; Bấm Space xác nhận mở khóa
+        Sleep(Random(300, 400))              ; Chờ cửa sổ đóng lại
+        return                               ; Tiếp tục quét ngay khóa tiếp theo
     }
 
-    ; Nếu vừa bấm xong các ổ khóa thì gửi lệnh Space để mở
-    if (hasLockedItem) {
-        Send("{Space}")
-        Sleep(Random(200, 300))
-        return ; Kết thúc lượt này để đợi vòng lặp sau
+    ; 2. QUÉT TÌM Ổ KHÓA LOẠI 2 (okhoa2.png) NẾU CÓ
+    if ImageSearch(&foundX, &foundY, x1, y1, x2, y2, "*80 okhoa2.png") {
+        ExecuteClick(foundX + 3, foundY + 3) ; Click thẳng vào tọa độ tìm thấy
+        Sleep(Random(250, 350))              ; Chờ cửa sổ hiện lên
+
+        Send("{Space}")                      ; Bấm Space xác nhận mở khóa
+        Sleep(Random(300, 400))              ; Chờ cửa sổ đóng lại
+        return                               ; Tiếp tục quét ngay khóa tiếp theo
     }
 
-    ; 3. NẾU KHÔNG CÓ Ổ KHÓA -> CLICK NÚT LÀM MỚI (TỌA ĐỘ 1495, 195)
+    ; 3. NẾU KHÔNG CÒN Ổ KHÓA NÀO TRÊN MÀN HÌNH -> CLICK NÚT LÀM MỚI (1495, 195)
     ExecuteClick(1495, 195)
 }
 
 ; ========================================================
-; HÀM NHẤP CHUỘT TỰ NHIÊN (TỐC ĐỘ VỪA PHẢI, TRÁNH GIẬT/LỖI MÁY)
+; HÀM NHẤP CHUỘT TỰ NHIÊN (MƯỢT TRÊN ZOOM)
 ; ========================================================
 ExecuteClick(posX, posY) {
-    ; Tạo độ lệch ngẫu nhiên 1 pixel để không bấm cố định một điểm tuyệt đối
-    randomX := posX + Random(-1, 1)
-    randomY := posY + Random(-1, 1)
-
-    ; Tốc độ 7: Chuột lướt nhanh vừa phải, nhìn tự nhiên không bị giật như máy
-    MouseMove(randomX, randomY, 7)
-    
+    MouseMove(posX, posY, 7)
     Sleep(Random(60, 100))
-    Click(randomX, randomY)
+    Click(posX, posY)
     Sleep(Random(80, 120))
-}
-
-; ========================================================
-; HÀM ĐẾM SỐ LƯỢNG ĐỒNG XU TRÊN MÀN HÌNH
-; ========================================================
-CountIconsOnScreen(scanX1, scanY1, scanX2, scanY2, imageFile) {
-    count := 0
-    currY := scanY1
-    foundX := 0
-    foundY := 0
-
-    while (currY < scanY2) && ImageSearch(&foundX, &foundY, scanX1, currY, scanX2, scanY2, imageFile) {
-        count++
-        currY := foundY + 15
-    }
-
-    return count
 }
