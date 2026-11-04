@@ -34,7 +34,7 @@ CoordMode("Mouse", "Client")
 }
 
 ; ========================================================
-; CHỨC NĂNG 2: TỰ ĐỘNG CHỌN 2 MẪU CHỮ ĐỎ -> XUẤT ĐƠN -> CLICK TẮT 2 POPUP
+; CHỨC NĂNG 2: TỰ ĐỘNG CHỌN CHỮ ĐỎ -> XUẤT ĐƠN -> CLICK TẮT POPUP
 ; Phím tắt: F8 (Bật / Tắt)
 ; ========================================================
 F8:: {
@@ -42,7 +42,7 @@ F8:: {
     isAutoRunning := !isAutoRunning
 
     if isAutoRunning {
-        SetTimer(MainLoop, 300)
+        SetTimer(MainLoop, 400)
         SoundBeep(1500, 190)
     } else {
         SetTimer(MainLoop, 0)
@@ -52,37 +52,37 @@ F8:: {
 
 MainLoop() {
     ; Tọa độ vùng quét cột 渠道 (Chứa chữ màu đỏ)
-    x1 := 1023
-    y1 := 384
-    x2 := 1350
+    x1 := 1000
+    y1 := 350
+    x2 := 1400
     y2 := 1024
 
     hasRedText := false
 
     ; 1. BẤM NÚT SEARCH / TÌM KIẾM TẠI (1443, 309)
     ExecuteClickHuman(1443, 309)
-    Sleep(2500) ; Đợi 2.5s cho bảng tải xong dữ liệu hoàn toàn
+    Sleep(2000) ; Đợi 2 giây cho dữ liệu tải hoàn tất
 
     ; 2. QUÉT VÀ TÍCH CHỌN CÁC DÒNG CÓ CHỮ MÀU ĐỎ (2 MẪU)
     outX1 := 0, outY1 := 0
     outX2 := 0, outY2 := 0
 
-    ; Quét Mẫu chữ đỏ 1 (chu_do1.png)
-    if ImageSearch(&outX1, &outY1, x1, y1, x2, y2, "*85 chu_do1.png") {
+    ; Quét Mẫu chữ đỏ 1 (chu_do1.png) với độ nhận diện tăng lên *90
+    if ImageSearch(&outX1, &outY1, x1, y1, x2, y2, "*90 *Variation5 chu_do1.png") {
         hasRedText := true
-        ; Click vào ô checkbox nằm bên trái chữ đỏ 700px (tùy chỉnh lùi lại đúng ô vuông)
-        checkboxX := outX1 - 700
-        checkboxY := outY1 + 5
+        ; Tọa độ X của cột Checkbox (Nằm ở phía bên trái bảng, cùng hàng Y với chữ đỏ)
+        checkboxX := 850 
+        checkboxY := outY1 + 4
 
         ExecuteClickHuman(checkboxX, checkboxY)
         Sleep(Random(300, 400))
     }
 
     ; Quét Mẫu chữ đỏ 2 (chu_do2.png)
-    if ImageSearch(&outX2, &outY2, x1, y1, x2, y2, "*85 chu_do2.png") {
+    if ImageSearch(&outX2, &outY2, x1, y1, x2, y2, "*90 *Variation5 chu_do2.png") {
         hasRedText := true
-        checkboxX := outX2 - 700
-        checkboxY := outY2 + 5
+        checkboxX := 850
+        checkboxY := outY2 + 4
 
         ExecuteClickHuman(checkboxX, checkboxY)
         Sleep(Random(300, 400))
