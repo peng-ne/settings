@@ -30,11 +30,11 @@ CoordMode("Mouse", "Client")
     Send("^v")
     Sleep(Random(100, 150))
 
-    ExecuteClickHuman(502, 278)
+    ExecuteClickHuman(492, 274)
 }
 
 ; ========================================================
-; CHỨC NĂNG 2: TỰ ĐỘNG CHỌN CHỮ ĐỎ -> XUẤT ĐƠN -> CLICK TẮT POPUP
+; CHỨC NĂNG 2: AUTO TÍCH CHỌN CẢ 2 CHỮ ĐỎ -> XUẤT ĐƠN -> TẮT POPUP -> QUÉT TIẾP ĐẾN HẾT
 ; Phím tắt: F8 (Bật / Tắt)
 ; ========================================================
 F8:: {
@@ -42,7 +42,7 @@ F8:: {
     isAutoRunning := !isAutoRunning
 
     if isAutoRunning {
-        SetTimer(MainLoop, 400)
+        SetTimer(MainLoop, 300)
         SoundBeep(1500, 190)
     } else {
         SetTimer(MainLoop, 0)
@@ -51,59 +51,59 @@ F8:: {
 }
 
 MainLoop() {
-    ; Tọa độ vùng quét cột 渠道 (Chứa chữ màu đỏ)
-    x1 := 1000
-    y1 := 350
-    x2 := 1400
+    x1 := 1023
+    y1 := 384
+    x2 := 1350
     y2 := 1024
-
-    hasRedText := false
 
     ; 1. BẤM NÚT SEARCH / TÌM KIẾM TẠI (1443, 309)
     ExecuteClickHuman(1443, 309)
-    Sleep(2000) ; Đợi 2 giây cho dữ liệu tải hoàn tất
+    Sleep(2500) ; Đợi 2.5s cho bảng nạp xong dữ liệu
 
-    ; 2. QUÉT VÀ TÍCH CHỌN CÁC DÒNG CÓ CHỮ MÀU ĐỎ (2 MẪU)
-    outX1 := 0, outY1 := 0
-    outX2 := 0, outY2 := 0
+    ; 2. VÒNG LẶP XỬ LÝ CHỮ ĐỎ (XỬ LÝ ĐẾN KHỦ HẾT TRƯỚC KHI SEARCH LẠI)
+    Loop {
+        outX1 := 0, outY1 := 0
+        outX2 := 0, outY2 := 0
+        hasRedTextThisTurn := false
 
-    ; Quét Mẫu chữ đỏ 1 (chu_do1.png) với độ nhận diện tăng lên *90
-    if ImageSearch(&outX1, &outY1, x1, y1, x2, y2, "*90 *Variation5 chu_do1.png") {
-        hasRedText := true
-        ; Tọa độ X của cột Checkbox (Nằm ở phía bên trái bảng, cùng hàng Y với chữ đỏ)
-        checkboxX := 850 
-        checkboxY := outY1 + 4
+        ; Quét Mẫu chữ đỏ 1 (chu_do1.png)
+        if ImageSearch(&outX1, &outY1, x1, y1, x2, y2, "*85 chu_do1.png") {
+            hasRedTextThisTurn := true
+            checkboxX1 := outX1 - 700
+            checkboxY1 := outY1 + 5
+            ExecuteClickHuman(checkboxX1, checkboxY1)
+            Sleep(Random(200, 300))
+        }
 
-        ExecuteClickHuman(checkboxX, checkboxY)
-        Sleep(Random(300, 400))
+        ; Quét Mẫu chữ đỏ 2 (chu_do2.png) - Kiểm tra độc lập để chọn cả 2 nếu cùng xuất hiện
+        if ImageSearch(&outX2, &outY2, x1, y1, x2, y2, "*85 chu_do2.png") {
+            hasRedTextThisTurn := true
+            checkboxX2 := outX2 - 700
+            checkboxY2 := outY2 + 5
+            ExecuteClickHuman(checkboxX2, checkboxY2)
+            Sleep(Random(200, 300))
+        }
+
+        ; Nếu lượt này có ít nhất 1 chữ đỏ được chọn -> Tiến hành Xuất đơn & Tắt Popup
+        if (hasRedTextThisTurn) {
+            ; Click nút màu xanh 批量代付 / Xuất đơn (961, 360)
+            ExecuteClickHuman(961, 360)
+            Sleep(Random(500, 700))
+
+            ; Tắt bảng thông báo xác nhận đầu tiên bằng phím Enter
+            Send("{Enter}")
+            Sleep(Random(600, 800))
+
+            ; CLICK CHUỘT VÀO NÚT XÁC NHẬN CỦA BẢNG THÔNG BÁO THỨ 2 (976, 613)
+            ExecuteClickHuman(976, 613)
+            Sleep(Random(500, 700))
+        } else {
+            ; Không còn phát hiện thêm chữ đỏ nào nữa -> Thoát vòng lặp để làm mới
+            break
+        }
     }
 
-    ; Quét Mẫu chữ đỏ 2 (chu_do2.png)
-    if ImageSearch(&outX2, &outY2, x1, y1, x2, y2, "*90 *Variation5 chu_do2.png") {
-        hasRedText := true
-        checkboxX := 850
-        checkboxY := outY2 + 4
-
-        ExecuteClickHuman(checkboxX, checkboxY)
-        Sleep(Random(300, 400))
-    }
-
-    ; 3. NẾU CÓ CHỮ MÀU ĐỎ ĐÃ ĐƯỢC CHỌN -> BẤM XUẤT ĐƠN & TẮT POPUP
-    if (hasRedText) {
-        ; Click nút màu xanh 批量代付 / Xuất đơn (961, 360)
-        ExecuteClickHuman(961, 360)
-        Sleep(Random(500, 700))
-
-        ; Tắt bảng thông báo xác nhận đầu tiên bằng phím Enter
-        Send("{Enter}")
-        Sleep(Random(600, 800))
-
-        ; CLICK CHUỘT VÀO NÚT XÁC NHẬN CỦA BẢNG THÔNG BÁO THỨ 2 (976, 613)
-        ExecuteClickHuman(976, 613)
-        Sleep(Random(500, 700))
-    }
-
-    ; 4. NGHỈ 2 GIÂY TRƯỚC KHI BẮT ĐẦU LƯỢT MỚI
+    ; 3. NGHỈ 2 GIÂY TRƯỚC KHI BẮT ĐẦU LƯỢT MỚI
     Sleep(2000)
 }
 
@@ -111,7 +111,7 @@ MainLoop() {
 ; HÀM NHẤP CHUỘT TỰ NHIÊN
 ; ========================================================
 ExecuteClickHuman(posX, posY) {
-    MouseMove(posX, posY, 5) ; Tốc độ lướt mượt
+    MouseMove(posX, posY, 5)
     Sleep(Random(40, 70))
     Click(posX, posY)
     Sleep(Random(50, 80))
