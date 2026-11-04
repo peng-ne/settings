@@ -1,6 +1,5 @@
 #Requires AutoHotkey v2.0
 
-; Ép AHK nhận đúng thư mục chứa file script để nạp file ảnh ổ khóa
 SetWorkingDir(A_ScriptDir)
 
 CoordMode("Pixel", "Client")
@@ -35,7 +34,7 @@ CoordMode("Mouse", "Client")
 }
 
 ; ========================================================
-; CHỨC NĂNG 2: MỞ TẤT CẢ Ổ KHÓA + BẤM SPACE -> HẾT KHÓA MỚI CLICK LÀM MỚI
+; CHỨC NĂNG 2: BẤM TẤT CẢ Ổ KHÓA -> BẤM XUẤT ĐƠN -> BẤM SPACE 1 LẦN -> LÀM MỚI (CHỜ 7S)
 ; Phím tắt: F8 (Bật / Tắt)
 ; ========================================================
 F8:: {
@@ -43,54 +42,71 @@ F8:: {
     isAutoRunning := !isAutoRunning
 
     if isAutoRunning {
-        SetTimer(MainLoop, 300) ; Quét liên tục mỗi 0.3 giây
-        SoundBeep(1500, 190)    ; Tiếng bíp báo BẬT
+        SetTimer(MainLoop, 800)
+        SoundBeep(1500, 190)
     } else {
         SetTimer(MainLoop, 0)
-        SoundBeep(370, 200)     ; Tiếng bíp báo TẮT
+        SoundBeep(370, 200)
     }
 }
 
 MainLoop() {
-    ; Tọa độ khung vùng quét cột 操作 (X1, Y1, X2, Y2)
-    x1 := 1300
+    x1 := 1250
     y1 := 250
-    x2 := 1480
+    x2 := 1500
     y2 := 850
 
     foundX := 0
     foundY := 0
+    hasLockedItem := false
 
-    ; 1. QUÉT TÌM Ổ KHÓA LOẠI 1 (okhoa1.png)
-    if ImageSearch(&foundX, &foundY, x1, y1, x2, y2, "*80 okhoa1.png") {
-        ExecuteClick(foundX + 3, foundY + 3) ; Click thẳng vào tọa độ tìm thấy
-        Sleep(Random(250, 350))              ; Chờ cửa sổ hiện lên
+    ; 1. BẤM TẤT CẢ Ổ KHÓA HIỆN CÓ TRÊN MÀN HÌNH
+    Loop {
+        foundInLoop := false
 
-        Send("{Space}")                      ; Bấm Space xác nhận mở khóa
-        Sleep(Random(300, 400))              ; Chờ cửa sổ đóng lại
-        return                               ; Tiếp tục quét ngay khóa tiếp theo
+        ; Quét ổ khóa 1
+        if ImageSearch(&foundX, &foundY, x1, y1, x2, y2, "*85 okhoa1.png") {
+            hasLockedItem := true
+            foundInLoop := true
+            ExecuteClick(foundX + 8, foundY + 8)
+            Sleep(Random(200, 300))
+        }
+        ; Quét ổ khóa 2 (nếu có)
+        else if ImageSearch(&foundX, &foundY, x1, y1, x2, y2, "*85 okhoa2.png") {
+            hasLockedItem := true
+            foundInLoop := true
+            ExecuteClick(foundX + 8, foundY + 8)
+            Sleep(Random(200, 300))
+        }
+
+        Sleep(20)
+
+        ; Thoát vòng lặp khi không còn thấy ổ khóa nào
+        if (!foundInLoop) {
+            break
+        }
     }
 
-    ; 2. QUÉT TÌM Ổ KHÓA LOẠI 2 (okhoa2.png) NẾU CÓ
-    if ImageSearch(&foundX, &foundY, x1, y1, x2, y2, "*80 okhoa2.png") {
-        ExecuteClick(foundX + 3, foundY + 3) ; Click thẳng vào tọa độ tìm thấy
-        Sleep(Random(250, 350))              ; Chờ cửa sổ hiện lên
+    ; 2. NẾU VỪA BẤM CÓ Ổ KHÓA: BẤM NÚT XUẤT ĐƠN -> BẤM SPACE 1 LẦN
+    if (hasLockedItem) {
+        ExecuteClick(380, 70)           ; Tọa độ nút Xuất đơn (批量代付)
+        Sleep(Random(400, 500))
 
-        Send("{Space}")                      ; Bấm Space xác nhận mở khóa
-        Sleep(Random(300, 400))              ; Chờ cửa sổ đóng lại
-        return                               ; Tiếp tục quét ngay khóa tiếp theo
+        Send("{Space}")                 ; Bấm Space 1 lần xác nhận
+        Sleep(Random(400, 500))
     }
 
-    ; 3. NẾU KHÔNG CÒN Ổ KHÓA NÀO TRÊN MÀN HÌNH -> CLICK NÚT LÀM MỚI (1495, 195)
+    ; 3. BẤM NÚT LÀM MỚI VÀ CHỜ 7 GIÂY CHO TRANG LOAD DỮ LIỆU MỚI
     ExecuteClick(1495, 195)
+    Sleep(7000)
 }
 
 ; ========================================================
-; HÀM NHẤP CHUỘT TỰ NHIÊN (MƯỢT TRÊN ZOOM)
+; HÀM NHẤP CHUỘT
 ; ========================================================
 ExecuteClick(posX, posY) {
-    MouseMove(posX, posY, 7)
-    Sleep(Random(60, 100))
+    MouseMove(posX, posY, 4)
+    Sleep(Random(80, 120))
     Click(posX, posY)
     Sleep(Random(80, 120))
 }
