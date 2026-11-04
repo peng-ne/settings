@@ -34,7 +34,7 @@ CoordMode("Mouse", "Client")
 }
 
 ; ========================================================
-; CHỨC NĂNG 2: QUÉT VÀ NHẤP TỐC ĐỘ TẤT CẢ CHỮ ĐỎ -> XUẤT ĐƠN -> TẮT POPUP
+; CHỨC NĂNG 2: GỘP CHUNG 1 ẢNH CHỮ ĐỎ -> QUÉT SẠCH TẤT CẢ DÒNG -> XUẤT ĐƠN -> TẮT POPUP
 ; Phím tắt: F8 (Bật / Tắt)
 ; ========================================================
 F8:: {
@@ -42,7 +42,7 @@ F8:: {
     isAutoRunning := !isAutoRunning
 
     if isAutoRunning {
-        SetTimer(MainLoop, 200) ; Nhịp quét nhanh 0.2s
+        SetTimer(MainLoop, 200)
         SoundBeep(1500, 190)
     } else {
         SetTimer(MainLoop, 0)
@@ -60,68 +60,44 @@ MainLoop() {
     ExecuteClickHuman(1443, 309)
     Sleep(2000) ; Đợi 2 giây cho bảng nạp xong dữ liệu
 
-    ; 2. VÒNG LẶP XỬ LÝ TẤT CẢ DÒNG CHỮ ĐỎ (TỐC ĐỘ CAO)
+    hasFoundRed := false
+    scanY := y1
+
+    ; 2. VÒNG LẶP QUÉT VÀ TÍCH CHỌN TẤT CẢ DÒNG CHỮ ĐỎ TỪ TRÊN XUỐNG DƯỚI
     Loop {
-        hasRedTextThisTurn := false
+        outX := 0, outY := 0
         
-        ; --- QUÉT VÀ TÍCH CHỌN TẤT CẢ DÒNG CHỮ ĐỎ 1 (chu_do1.png) ---
-        scanY := y1
-        Loop {
-            outX1 := 0, outY1 := 0
-            if ImageSearch(&outX1, &outY1, x1, scanY, x2, y2, "*85 chu_do1.png") {
-                hasRedTextThisTurn := true
-                checkboxX1 := outX1 - 700
-                checkboxY1 := outY1 + 5
-                
-                ExecuteClickFast(checkboxX1, checkboxY1) ; Nhấp nhanh
-                Sleep(Random(80, 130))
-                
-                scanY := outY1 + 15 
-                if (scanY >= y2) {
-                    break
-                }
-            } else {
+        ; Sử dụng *Variation35 để nhận diện linh hoạt mọi độ chênh lệch màu chữ đỏ
+        if ImageSearch(&outX, &outY, x1, scanY, x2, y2, "*90 *Variation35 chu_do.png") {
+            hasFoundRed := true
+            checkboxX := outX - 700
+            checkboxY := outY + 5
+            
+            ExecuteClickFast(checkboxX, checkboxY) ; Tích chọn vào ô vuông
+            Sleep(Random(80, 120))
+            
+            scanY := outY + 15 ; Đẩy vị trí Y xuống dưới 15px để quét tiếp dòng chữ đỏ tiếp theo
+            if (scanY >= y2) {
                 break
             }
-        }
-
-        ; --- QUÉT VÀ TÍCH CHỌN TẤT CẢ DÒNG CHỮ ĐỎ 2 (chu_do2.png) ---
-        scanY := y1
-        Loop {
-            outX2 := 0, outY2 := 0
-            if ImageSearch(&outX2, &outY2, x1, scanY, x2, y2, "*85 chu_do2.png") {
-                hasRedTextThisTurn := true
-                checkboxX2 := outX2 - 700
-                checkboxY2 := outY2 + 5
-                
-                ExecuteClickFast(checkboxX2, checkboxY2) ; Nhấp nhanh
-                Sleep(Random(80, 130))
-                
-                scanY := outY2 + 15
-                if (scanY >= y2) {
-                    break
-                }
-            } else {
-                break
-            }
-        }
-
-        ; 3. NẾU ĐÃ CHỌN ĐƯỢC CHỮ ĐỎ -> BẤM XUẤT ĐƠN & TẮT POPUP
-        if (hasRedTextThisTurn) {
-            ; Click nút màu xanh 批量代付 / Xuất đơn (961, 360)
-            ExecuteClickHuman(961, 360)
-            Sleep(Random(400, 500))
-
-            ; Tắt bảng thông báo xác nhận đầu tiên bằng phím Enter
-            Send("{Enter}")
-            Sleep(Random(400, 500))
-
-            ; CLICK CHUỘT VÀO NÚT XÁC NHẬN CỦA BẢNG THÔNG BÁO THỨ 2 (976, 613)
-            ExecuteClickHuman(976, 613)
-            Sleep(Random(400, 500))
         } else {
-            break
+            break ; Đã tích chọn sạch toàn bộ dòng chữ đỏ trên màn hình
         }
+    }
+
+    ; 3. NẾU CÓ DÒNG CHỮ ĐỎ ĐÃ ĐƯỢC CHỌN -> BẤM XUẤT ĐƠN & TẮT POPUP
+    if (hasFoundRed) {
+        ; Click nút màu xanh 批量代付 / Xuất đơn (961, 360)
+        ExecuteClickHuman(961, 360)
+        Sleep(Random(400, 500))
+
+        ; Tắt bảng thông báo xác nhận đầu tiên bằng phím Enter
+        Send("{Enter}")
+        Sleep(Random(400, 500))
+
+        ; CLICK CHUỘT VÀO NÚT XÁC NHẬN CỦA BẢNG THÔNG BÁO THỨ 2 (976, 613)
+        ExecuteClickHuman(976, 613)
+        Sleep(Random(400, 500))
     }
 
     ; 4. NGHỈ 1.5 GIÂY TRƯỚC KHI BẮT ĐẦU LƯỢT MỚI
@@ -129,4 +105,21 @@ MainLoop() {
 }
 
 ; ========================================================
-; HÀM NHẤP CHUỘT
+; HÀM NHẤP CHUỘT MƯỢT
+; ========================================================
+ExecuteClickHuman(posX, posY) {
+    MouseMove(posX, posY, 4)
+    Sleep(Random(40, 60))
+    Click(posX, posY)
+    Sleep(Random(40, 60))
+}
+
+; ========================================================
+; HÀM NHẤP CHUỘT TỐC ĐỘ CAO DÙNG KHI TÍCH Ô CHECKBOX
+; ========================================================
+ExecuteClickFast(posX, posY) {
+    MouseMove(posX, posY, 2)
+    Sleep(Random(20, 40))
+    Click(posX, posY)
+    Sleep(Random(30, 50))
+}
