@@ -12,29 +12,29 @@ CoordMode("Mouse", "Client")
 ^+e:: {
     A_Clipboard := ""
     Send("^c")
-    if !ClipWait(1) {
+    if !ClipWait(0.8) {
         return
     }
 
     Send("^2")
-    Sleep(Random(150, 200))
+    Sleep(Random(100, 150))
 
-    ExecuteClickHuman(708, 177)
-    Sleep(Random(80, 120))
+    ExecuteClickHuman(1062, 175)
+    Sleep(Random(60, 100))
 
     Send("^a")
     Sleep(30)
     Send("{BS}")
-    Sleep(Random(40, 80))
+    Sleep(Random(40, 70))
 
     Send("^v")
-    Sleep(Random(80, 120))
+    Sleep(Random(60, 100))
 
-    ExecuteClickHuman(492, 274)
+    ExecuteClickHuman(878, 274)
 }
 
 ; ========================================================
-; CHỨC NĂNG 2: GỘP CHUNG 1 ẢNH CHỮ ĐỎ -> QUÉT SẠCH TẤT CẢ DÒNG -> XUẤT ĐƠN -> TẮT POPUP
+; CHỨC NĂNG 2: QUÉT Ổ KHÓA XANH TỐC ĐỘ CAO -> LÀM MỚI TỰ ĐỘNG
 ; Phím tắt: F8 (Bật / Tắt)
 ; ========================================================
 F8:: {
@@ -42,7 +42,7 @@ F8:: {
     isAutoRunning := !isAutoRunning
 
     if isAutoRunning {
-        SetTimer(MainLoop, 200)
+        SetTimer(MainLoop, 150) ; Nhịp quét siêu nhanh 0.15s
         SoundBeep(1500, 190)
     } else {
         SetTimer(MainLoop, 0)
@@ -51,75 +51,61 @@ F8:: {
 }
 
 MainLoop() {
-    x1 := 1023
-    y1 := 384
-    x2 := 1350
-    y2 := 1024
+    ; Tọa độ vùng quét cột 操作 (Chứa các icon ổ khóa xanh ngoài cùng bên phải)
+    x1 := 1800
+    y1 := 416
+    x2 := 1910
+    y2 := 1025
 
-    ; 1. BẤM NÚT SEARCH / TÌM KIẾM TẠI (1443, 309)
-    ExecuteClickHuman(1443, 309)
-    Sleep(2000) ; Đợi 2 giây cho bảng nạp xong dữ liệu
+    ; 1. BẤM NÚT SEARCH / TÌM KIẾM LÀM MỚI TẠI (1825, 312)
+    ExecuteClickHuman(1825, 312)
+    Sleep(1200) ; Tốc độ tải dữ liệu rút ngắn xuống 1.2s
 
-    hasFoundRed := false
     scanY := y1
 
-    ; 2. VÒNG LẶP QUÉT VÀ TÍCH CHỌN TẤT CẢ DÒNG CHỮ ĐỎ TỪ TRÊN XUỐNG DƯỚI
+    ; 2. VÒNG LẶP QUÉT VÀ CLICK TẤT CẢ Ổ KHÓA XANH (SIÊU TỐC)
     Loop {
         outX := 0, outY := 0
         
-        ; Sử dụng *Variation35 để nhận diện linh hoạt mọi độ chênh lệch màu chữ đỏ
-        if ImageSearch(&outX, &outY, x1, scanY, x2, y2, "*90 *Variation35 chu_do.png") {
-            hasFoundRed := true
-            checkboxX := outX - 700
-            checkboxY := outY + 5
-            
-            ExecuteClickFast(checkboxX, checkboxY) ; Tích chọn vào ô vuông
-            Sleep(Random(80, 120))
-            
-            scanY := outY + 15 ; Đẩy vị trí Y xuống dưới 15px để quét tiếp dòng chữ đỏ tiếp theo
-            if (scanY >= y2) {
+        ; Quét tìm icon okhoa.png
+        if ImageSearch(&outX, &outY, x1, scanY, x2, y2, "*80 *Variation40 okhoa.png") {
+            lockX := outX + 5
+            lockY := outY + 5
+
+            ExecuteClickFast(lockX, lockY) ; Nhấp chuột tốc độ cao vào ổ khóa
+            Sleep(Random(40, 70))
+
+            Send("{Space}") ; Bấm phím Space xác nhận ngay lập tức
+            Sleep(Random(150, 250))
+
+            scanY := outY + 10 ; Nhảy 10px xuống dưới để quét ổ khóa tiếp theo
+            if (scanY >= y2)
                 break
-            }
         } else {
-            break ; Đã tích chọn sạch toàn bộ dòng chữ đỏ trên màn hình
+            break ; Đã mở sạch toàn bộ ổ khóa
         }
     }
 
-    ; 3. NẾU CÓ DÒNG CHỮ ĐỎ ĐÃ ĐƯỢC CHỌN -> BẤM XUẤT ĐƠN & TẮT POPUP
-    if (hasFoundRed) {
-        ; Click nút màu xanh 批量代付 / Xuất đơn (961, 360)
-        ExecuteClickHuman(961, 360)
-        Sleep(Random(400, 500))
-
-        ; Tắt bảng thông báo xác nhận đầu tiên bằng phím Enter
-        Send("{Enter}")
-        Sleep(Random(400, 500))
-
-        ; CLICK CHUỘT VÀO NÚT XÁC NHẬN CỦA BẢNG THÔNG BÁO THỨ 2 (976, 613)
-        ExecuteClickHuman(976, 613)
-        Sleep(Random(400, 500))
-    }
-
-    ; 4. NGHỈ 1.5 GIÂY TRƯỚC KHI BẮT ĐẦU LƯỢT MỚI
-    Sleep(1500)
+    ; 3. NGHỈ ngắn 0.8 GIÂY TRƯỚC KHI BẮT ĐẦU LƯỢT LÀM MỚI TIẾP THEO
+    Sleep(800)
 }
 
 ; ========================================================
-; HÀM NHẤP CHUỘT MƯỢT
+; HÀM NHẤP CHUỘT CHUẨN MƯỢT
 ; ========================================================
 ExecuteClickHuman(posX, posY) {
-    MouseMove(posX, posY, 4)
-    Sleep(Random(40, 60))
+    MouseMove(posX, posY, 3)
+    Sleep(Random(30, 50))
     Click(posX, posY)
-    Sleep(Random(40, 60))
+    Sleep(Random(30, 50))
 }
 
 ; ========================================================
-; HÀM NHẤP CHUỘT TỐC ĐỘ CAO DÙNG KHI TÍCH Ô CHECKBOX
+; HÀM NHẤP CHUỘT SIÊU TỐC (SPEED 1)
 ; ========================================================
 ExecuteClickFast(posX, posY) {
-    MouseMove(posX, posY, 2)
-    Sleep(Random(20, 40))
+    MouseMove(posX, posY, 1) ; Di chuyển chuột tức thì
+    Sleep(Random(15, 30))
     Click(posX, posY)
-    Sleep(Random(30, 50))
+    Sleep(Random(20, 40))
 }
