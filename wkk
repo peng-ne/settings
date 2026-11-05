@@ -104,7 +104,7 @@ MainLoopBatch() {
 }
 
 ; ========================================================
-; CHỨC NĂNG 3: LÀM MỚI -> QUÉT CHỮ ĐỎ -> BẤM THẲNG Ổ KHÓA (+283 PX)
+; CHỨC NĂNG 3: LÀM MỚI -> MỞ KHIẾN HẾT CHỮ ĐỎ MỚI LÀM MỚI TIẾP
 ; Phím tắt: F9 (Bật / Tắt)
 ; ========================================================
 F9:: {
@@ -132,27 +132,27 @@ MainLoopLock() {
 
     scanY := y1
 
-    ; 2. QUÉT CHỮ ĐỎ VÀ DỊCH CHUYỂN SANG PHẢI BẤM Ổ KHÓA
+    ; 2. QUÉT CHỮ ĐỎ VÀ MỞ KHÓA CHO ĐẾN KHÔNG CÒN CHỮ ĐỎ NÀO
     Loop {
         outX := 0, outY := 0
         
         if ImageSearch(&outX, &outY, x1, scanY, x2, y2, "*60 *Variation80 chu_do1.png")
         || ImageSearch(&outX, &outY, x1, scanY, x2, y2, "*60 *Variation80 chu_do2.png") {
             
-            ; Cộng +283px sang phải từ vị trí chữ đỏ để nhấp vào icon ổ khóa
-            lockX := outX + 283
+            ; Cộng khoảng cách +330px sang phải để bấm đúng vào icon ổ khóa
+            lockX := outX + 330
             lockY := outY + 4
 
             ExecuteClickFast(lockX, lockY)
             Sleep(Random(40, 70))
 
             Send("{Space}")
-            Sleep(Random(150, 250))
+            Sleep(Random(300, 400)) ; Đợi bảng nạp trạng thái mở khóa
 
-            scanY := outY + 10
-            if (scanY >= y2)
-                break
+            ; RESET VỀ Y1 ĐỂ QUÉT LẠI TỪ ĐẦU BẢNG XEM CÒN CHỮ ĐỎ NÀO KHÔNG
+            scanY := y1 
         } else {
+            ; Đã mở sạch toàn bộ chữ đỏ -> Thoát loop để bấm Làm mới lượt tiếp theo
             break
         }
     }
