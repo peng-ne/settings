@@ -34,7 +34,7 @@ CoordMode("Mouse", "Client")
 }
 
 ; ========================================================
-; CHỨC NĂNG 2: QUÉT CHỮ ĐỎ -> TÍNH TỌA ĐỘ SANG PHẢI CLICK Ổ KHÓA
+; CHỨC NĂNG 2: BẤM LÀM MỚI -> CHỌN HẾT DÒNG ĐỎ -> XUẤT ĐƠN -> TẮT POPUP
 ; Phím tắt: F8 (Bật / Tắt)
 ; ========================================================
 F8:: {
@@ -51,44 +51,58 @@ F8:: {
 }
 
 MainLoop() {
-    ; Tọa độ chuẩn xác vùng quét cột 订单状态 (chứa chữ đỏ "待审核")
+    ; Tọa độ chuẩn vùng quét cột 订单状态 (chứa chữ đỏ "待审核")
     x1 := 910
     y1 := 416
     x2 := 1120
     y2 := 1024
 
-    ; 1. BẤM NÚT TÌM KIẾM / LÀM MỚI (Dùng tọa độ nút Tìm kiếm chuẩn trên màn hình của bạn)
+    ; 1. BẤM NÚT TÌM KIẾM / LÀM MỚI (1442, 312)
     ExecuteClickHuman(1442, 312)
-    Sleep(1200)
+    Sleep(1200) ; Đợi 1.2s cho bảng nạp dữ liệu xong
 
+    hasFoundRed := false
     scanY := y1
 
-    ; 2. QUÉT CHỮ ĐỎ VÀ CỘNG +283 PX SANG PHẢI ĐỂ BẤM Ổ KHÓA
+    ; 2. QUÉT VÀ TÍCH CHỌN TẤT CẢ DÒNG CÓ CHỮ ĐỎ "待审核" TỪ TRÊN XUỐNG DƯỚI
     Loop {
         outX := 0, outY := 0
         
-        ; Quét tìm chữ đỏ chu_do1.png (hoặc chu_do2.png)
         if ImageSearch(&outX, &outY, x1, scanY, x2, y2, "*60 *Variation80 chu_do1.png") {
+            hasFoundRed := true
             
-            ; Cộng 283px từ chữ đỏ sang phải để trúng icon ổ khóa
-            lockX := outX + 283
-            lockY := outY + 4
+            ; Tính lùi từ chữ đỏ (X: ~937) về ô vuông Checkbox đầu dòng (X: ~27)
+            checkboxX := outX - 910
+            checkboxY := outY + 4
 
-            ExecuteClickFast(lockX, lockY) ; Bấm thẳng vào ổ khóa
+            ExecuteClickFast(checkboxX, checkboxY) ; Tích chọn ô vuông
             Sleep(Random(40, 70))
 
-            Send("{Space}") ; Bấm phím Space xác nhận
-            Sleep(Random(150, 250))
-
-            scanY := outY + 10 ; Nhảy 10px xuống để quét tiếp dòng dưới
+            scanY := outY + 10 ; Nhảy 10px xuống dưới để quét dòng chữ đỏ tiếp theo
             if (scanY >= y2)
                 break
         } else {
-            break ; Đã mở sạch ổ khóa
+            break ; Đã tích chọn sạch toàn bộ dòng chữ đỏ trên màn hình
         }
     }
 
-    Sleep(800)
+    ; 3. NẾU CÓ DÒNG CHỮ ĐỎ ĐÃ ĐƯỢC CHỌN -> BẤM XUẤT ĐƠN & TẮT POPUP
+    if (hasFoundRed) {
+        ; Click nút màu xanh 批量代付 / Xuất đơn (Tọa độ nút Xuất đơn chuẩn trên giao diện)
+        ExecuteClickHuman(554, 252) ; Hoặc tọa độ nút Xuất đơn xanh dương của bạn
+        Sleep(Random(300, 400))
+
+        ; Tắt bảng thông báo xác nhận 1 bằng phím Space
+        Send("{Space}")
+        Sleep(Random(400, 500))
+
+        ; Click xác nhận bảng thông báo 2 (976, 613)
+        ExecuteClickHuman(976, 613)
+        Sleep(Random(300, 400))
+    }
+
+    ; 4. NGHỈ 1.2 GIÂY TRƯỚC KHI BẮT ĐẦU LƯỢT LÀM MỚI TIẾP THEO
+    Sleep(1200)
 }
 
 ; ========================================================
