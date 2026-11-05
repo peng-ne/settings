@@ -19,22 +19,22 @@ CoordMode("Mouse", "Client")
     Send("^2")
     Sleep(Random(100, 150))
 
-    ExecuteClickHuman(1062, 175)
+    ExecuteClickHuman(708, 176)
     Sleep(Random(60, 100))
 
     Send("^a")
-    Sleep(30)
+    Sleep(20)
     Send("{BS}")
-    Sleep(Random(40, 70))
+    Sleep(Random(30, 40))
 
     Send("^v")
-    Sleep(Random(60, 100))
+    Sleep(Random(20, 30))
 
-    ExecuteClickHuman(878, 274)
+    ExecuteClickHuman(494, 273)
 }
 
 ; ========================================================
-; CHỨC NĂNG 2: QUÉT Ổ KHÓA XANH TỐC ĐỘ CAO -> LÀM MỚI TỰ ĐỘNG
+; CHỨC NĂNG 2: QUÉT CHỮ ĐỎ -> TÍNH TỌA ĐỘ SANG PHẢI CLICK Ổ KHÓA
 ; Phím tắt: F8 (Bật / Tắt)
 ; ========================================================
 F8:: {
@@ -42,7 +42,7 @@ F8:: {
     isAutoRunning := !isAutoRunning
 
     if isAutoRunning {
-        SetTimer(MainLoop, 150) ; Nhịp quét siêu nhanh 0.15s
+        SetTimer(MainLoop, 150)
         SoundBeep(1500, 190)
     } else {
         SetTimer(MainLoop, 0)
@@ -51,42 +51,43 @@ F8:: {
 }
 
 MainLoop() {
-    ; Tọa độ vùng quét cột 操作 (Chứa các icon ổ khóa xanh ngoài cùng bên phải)
-    x1 := 1800
+    ; Tọa độ chuẩn xác vùng quét cột 订单状态 (chứa chữ đỏ "待审核")
+    x1 := 910
     y1 := 416
-    x2 := 1910
-    y2 := 1025
+    x2 := 1120
+    y2 := 1024
 
-    ; 1. BẤM NÚT SEARCH / TÌM KIẾM LÀM MỚI TẠI (1825, 312)
-    ExecuteClickHuman(1825, 312)
-    Sleep(1200) ; Tốc độ tải dữ liệu rút ngắn xuống 1.2s
+    ; 1. BẤM NÚT TÌM KIẾM / LÀM MỚI (Dùng tọa độ nút Tìm kiếm chuẩn trên màn hình của bạn)
+    ExecuteClickHuman(1442, 312)
+    Sleep(1200)
 
     scanY := y1
 
-    ; 2. VÒNG LẶP QUÉT VÀ CLICK TẤT CẢ Ổ KHÓA XANH (SIÊU TỐC)
+    ; 2. QUÉT CHỮ ĐỎ VÀ CỘNG +283 PX SANG PHẢI ĐỂ BẤM Ổ KHÓA
     Loop {
         outX := 0, outY := 0
         
-        ; Quét tìm icon okhoa.png
-        if ImageSearch(&outX, &outY, x1, scanY, x2, y2, "*80 *Variation40 okhoa.png") {
-            lockX := outX + 5
-            lockY := outY + 5
+        ; Quét tìm chữ đỏ chu_do1.png (hoặc chu_do2.png)
+        if ImageSearch(&outX, &outY, x1, scanY, x2, y2, "*60 *Variation80 chu_do1.png") {
+            
+            ; Cộng 283px từ chữ đỏ sang phải để trúng icon ổ khóa
+            lockX := outX + 283
+            lockY := outY + 4
 
-            ExecuteClickFast(lockX, lockY) ; Nhấp chuột tốc độ cao vào ổ khóa
+            ExecuteClickFast(lockX, lockY) ; Bấm thẳng vào ổ khóa
             Sleep(Random(40, 70))
 
-            Send("{Space}") ; Bấm phím Space xác nhận ngay lập tức
+            Send("{Space}") ; Bấm phím Space xác nhận
             Sleep(Random(150, 250))
 
-            scanY := outY + 10 ; Nhảy 10px xuống dưới để quét ổ khóa tiếp theo
+            scanY := outY + 10 ; Nhảy 10px xuống để quét tiếp dòng dưới
             if (scanY >= y2)
                 break
         } else {
-            break ; Đã mở sạch toàn bộ ổ khóa
+            break ; Đã mở sạch ổ khóa
         }
     }
 
-    ; 3. NGHỈ ngắn 0.8 GIÂY TRƯỚC KHI BẮT ĐẦU LƯỢT LÀM MỚI TIẾP THEO
     Sleep(800)
 }
 
@@ -101,10 +102,10 @@ ExecuteClickHuman(posX, posY) {
 }
 
 ; ========================================================
-; HÀM NHẤP CHUỘT SIÊU TỐC (SPEED 1)
+; HÀM NHẤP CHUỘT SIÊU TỐC
 ; ========================================================
 ExecuteClickFast(posX, posY) {
-    MouseMove(posX, posY, 1) ; Di chuyển chuột tức thì
+    MouseMove(posX, posY, 1)
     Sleep(Random(15, 30))
     Click(posX, posY)
     Sleep(Random(20, 40))
