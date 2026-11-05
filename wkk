@@ -34,7 +34,7 @@ CoordMode("Mouse", "Client")
 }
 
 ; ========================================================
-; CHỨC NĂNG 2: BẤM LÀM MỚI -> CHỌN HẾT DÒNG ĐỎ -> XUẤT ĐƠN -> TẮT POPUP
+; CHỨC NĂNG 2: BẤM LÀM MỚI -> QUÉT CẢ 2 CHỮ ĐỎ -> TÍCH CHỌN -> XUẤT ĐƠN -> TẮT POPUP
 ; Phím tắt: F8 (Bật / Tắt)
 ; ========================================================
 F8:: {
@@ -64,11 +64,14 @@ MainLoop() {
     hasFoundRed := false
     scanY := y1
 
-    ; 2. QUÉT VÀ TÍCH CHỌN TẤT CẢ DÒNG CÓ CHỮ ĐỎ "待审核" TỪ TRÊN XUỐNG DƯỚI
+    ; 2. QUÉT VÀ TÍCH CHỌN TẤT CẢ DÒNG CÓ CHỮ ĐỎ (QUÉT CẢ 2 MẪU CHỮ ĐỎ)
     Loop {
         outX := 0, outY := 0
         
-        if ImageSearch(&outX, &outY, x1, scanY, x2, y2, "*60 *Variation80 chu_do1.png") {
+        ; Tìm chu_do1.png HOẶC chu_do2.png trong cùng 1 nhịp quét
+        if ImageSearch(&outX, &outY, x1, scanY, x2, y2, "*60 *Variation80 chu_do1.png")
+        || ImageSearch(&outX, &outY, x1, scanY, x2, y2, "*60 *Variation80 chu_do2.png") {
+            
             hasFoundRed := true
             
             ; Tính lùi từ chữ đỏ (X: ~937) về ô vuông Checkbox đầu dòng (X: ~27)
@@ -88,8 +91,8 @@ MainLoop() {
 
     ; 3. NẾU CÓ DÒNG CHỮ ĐỎ ĐÃ ĐƯỢC CHỌN -> BẤM XUẤT ĐƠN & TẮT POPUP
     if (hasFoundRed) {
-        ; Click nút màu xanh 批量代付 / Xuất đơn (Tọa độ nút Xuất đơn chuẩn trên giao diện)
-        ExecuteClickHuman(554, 252) ; Hoặc tọa độ nút Xuất đơn xanh dương của bạn
+        ; Click nút màu xanh 批量代付 / Xuất đơn (979, 360)
+        ExecuteClickHuman(979, 360)
         Sleep(Random(300, 400))
 
         ; Tắt bảng thông báo xác nhận 1 bằng phím Space
@@ -101,8 +104,8 @@ MainLoop() {
         Sleep(Random(300, 400))
     }
 
-    ; 4. NGHỈ 1.2 GIÂY TRƯỚC KHI BẮT ĐẦU LƯỢT LÀM MỚI TIẾP THEO
-    Sleep(1200)
+    ; 4. NGHỈ 1.0 GIÂY TRƯỚC KHI BẮT ĐẦU LƯỢT LÀM MỚI TIẾP THEO
+    Sleep(1000)
 }
 
 ; ========================================================
