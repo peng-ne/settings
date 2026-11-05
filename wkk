@@ -34,23 +34,23 @@ CoordMode("Mouse", "Client")
 }
 
 ; ========================================================
-; CHỨC NĂNG 2: BẤM LÀM MỚI -> QUÉT CẢ 2 CHỮ ĐỎ -> TÍCH CHỌN -> XUẤT ĐƠN -> TẮT POPUP
+; CHỨC NĂNG 2: LÀM MỚI -> QUÉT CHỮ ĐỎ -> TÍCH CHECKBOX -> XUẤT ĐƠN
 ; Phím tắt: F8 (Bật / Tắt)
 ; ========================================================
 F8:: {
-    static isAutoRunning := false
-    isAutoRunning := !isAutoRunning
+    static isAutoRunningF8 := false
+    isAutoRunningF8 := !isAutoRunningF8
 
-    if isAutoRunning {
-        SetTimer(MainLoop, 150)
+    if isAutoRunningF8 {
+        SetTimer(MainLoopBatch, 150)
         SoundBeep(1500, 190)
     } else {
-        SetTimer(MainLoop, 0)
+        SetTimer(MainLoopBatch, 0)
         SoundBeep(370, 200)
     }
 }
 
-MainLoop() {
+MainLoopBatch() {
     ; Tọa độ chuẩn vùng quét cột 订单状态 (chứa chữ đỏ "待审核")
     x1 := 910
     y1 := 416
@@ -59,7 +59,7 @@ MainLoop() {
 
     ; 1. BẤM NÚT TÌM KIẾM / LÀM MỚI (1442, 312)
     ExecuteClickHuman(1442, 312)
-    Sleep(1200) ; Đợi 1.2s cho bảng nạp dữ liệu xong
+    Sleep(1200)
 
     hasFoundRed := false
     scanY := y1
@@ -68,7 +68,6 @@ MainLoop() {
     Loop {
         outX := 0, outY := 0
         
-        ; Tìm chu_do1.png HOẶC chu_do2.png trong cùng 1 nhịp quét
         if ImageSearch(&outX, &outY, x1, scanY, x2, y2, "*60 *Variation80 chu_do1.png")
         || ImageSearch(&outX, &outY, x1, scanY, x2, y2, "*60 *Variation80 chu_do2.png") {
             
@@ -78,34 +77,87 @@ MainLoop() {
             checkboxX := outX - 910
             checkboxY := outY + 4
 
-            ExecuteClickFast(checkboxX, checkboxY) ; Tích chọn ô vuông
+            ExecuteClickFast(checkboxX, checkboxY)
             Sleep(Random(40, 70))
 
-            scanY := outY + 10 ; Nhảy 10px xuống dưới để quét dòng chữ đỏ tiếp theo
+            scanY := outY + 10
             if (scanY >= y2)
                 break
         } else {
-            break ; Đã tích chọn sạch toàn bộ dòng chữ đỏ trên màn hình
+            break
         }
     }
 
-    ; 3. NẾU CÓ DÒNG CHỮ ĐỎ ĐÃ ĐƯỢC CHỌN -> BẤM XUẤT ĐƠN & TẮT POPUP
+    ; 3. BẤM XUẤT ĐƠN & TẮT POPUP
     if (hasFoundRed) {
-        ; Click nút màu xanh 批量代付 / Xuất đơn (979, 360)
         ExecuteClickHuman(979, 360)
         Sleep(Random(300, 400))
 
-        ; Tắt bảng thông báo xác nhận 1 bằng phím Space
         Send("{Space}")
         Sleep(Random(400, 500))
 
-        ; Click xác nhận bảng thông báo 2 (976, 613)
         ExecuteClickHuman(976, 613)
         Sleep(Random(300, 400))
     }
 
-    ; 4. NGHỈ 1.0 GIÂY TRƯỚC KHI BẮT ĐẦU LƯỢT LÀM MỚI TIẾP THEO
     Sleep(1000)
+}
+
+; ========================================================
+; CHỨC NĂNG 3: LÀM MỚI -> QUÉT CHỮ ĐỎ -> BẤM THẲNG Ổ KHÓA (+283 PX)
+; Phím tắt: F9 (Bật / Tắt)
+; ========================================================
+F9:: {
+    static isAutoRunningF9 := false
+    isAutoRunningF9 := !isAutoRunningF9
+
+    if isAutoRunningF9 {
+        SetTimer(MainLoopLock, 150)
+        SoundBeep(2000, 190)
+    } else {
+        SetTimer(MainLoopLock, 0)
+        SoundBeep(500, 200)
+    }
+}
+
+MainLoopLock() {
+    x1 := 910
+    y1 := 416
+    x2 := 1120
+    y2 := 1024
+
+    ; 1. BẤM NÚT TÌM KIẾM / LÀM MỚI (1442, 312)
+    ExecuteClickHuman(1442, 312)
+    Sleep(1200)
+
+    scanY := y1
+
+    ; 2. QUÉT CHỮ ĐỎ VÀ DỊCH CHUYỂN SANG PHẢI BẤM Ổ KHÓA
+    Loop {
+        outX := 0, outY := 0
+        
+        if ImageSearch(&outX, &outY, x1, scanY, x2, y2, "*60 *Variation80 chu_do1.png")
+        || ImageSearch(&outX, &outY, x1, scanY, x2, y2, "*60 *Variation80 chu_do2.png") {
+            
+            ; Cộng +283px sang phải từ vị trí chữ đỏ để nhấp vào icon ổ khóa
+            lockX := outX + 283
+            lockY := outY + 4
+
+            ExecuteClickFast(lockX, lockY)
+            Sleep(Random(40, 70))
+
+            Send("{Space}")
+            Sleep(Random(150, 250))
+
+            scanY := outY + 10
+            if (scanY >= y2)
+                break
+        } else {
+            break
+        }
+    }
+
+    Sleep(800)
 }
 
 ; ========================================================
