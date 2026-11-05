@@ -5,6 +5,10 @@ SetWorkingDir(A_ScriptDir)
 CoordMode("Pixel", "Client")
 CoordMode("Mouse", "Client")
 
+; Biến toàn cục quản lý trạng thái F8 và F9
+global isAutoRunningF8 := false
+global isAutoRunningF9 := false
+
 ; ========================================================
 ; CHỨC NĂNG 1: BÔI ĐEN -> COPY -> TAB 2 -> DÁN -> TÌM KIẾM
 ; Phím tắt: Ctrl + Shift + E
@@ -38,7 +42,14 @@ CoordMode("Mouse", "Client")
 ; Phím tắt: F8 (Bật / Tắt)
 ; ========================================================
 F8:: {
-    static isAutoRunningF8 := false
+    global isAutoRunningF8, isAutoRunningF9
+    
+    ; Tắt F9 nếu F9 đang chạy để tránh xung đột
+    if isAutoRunningF9 {
+        isAutoRunningF9 := false
+        SetTimer(MainLoopLock, 0)
+    }
+
     isAutoRunningF8 := !isAutoRunningF8
 
     if isAutoRunningF8 {
@@ -108,7 +119,14 @@ MainLoopBatch() {
 ; Phím tắt: F9 (Bật / Tắt)
 ; ========================================================
 F9:: {
-    static isAutoRunningF9 := false
+    global isAutoRunningF8, isAutoRunningF9
+
+    ; Tắt F8 nếu F8 đang chạy để tránh xung đột
+    if isAutoRunningF8 {
+        isAutoRunningF8 := false
+        SetTimer(MainLoopBatch, 0)
+    }
+
     isAutoRunningF9 := !isAutoRunningF9
 
     if isAutoRunningF9 {
@@ -158,6 +176,24 @@ MainLoopLock() {
     }
 
     Sleep(800)
+}
+
+; ========================================================
+; CHỨC NĂNG 4: TẮT DỪNG KHẨN CẤP HOÀN TOÀN (CẢ F8 VÀ F9)
+; Phím tắt: F10
+; ========================================================
+F10:: {
+    global isAutoRunningF8, isAutoRunningF9
+    
+    isAutoRunningF8 := false
+    isAutoRunningF9 := false
+
+    SetTimer(MainLoopBatch, 0)
+    SetTimer(MainLoopLock, 0)
+
+    SoundBeep(400, 150)
+    Sleep(50)
+    SoundBeep(300, 200)
 }
 
 ; ========================================================
