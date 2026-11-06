@@ -80,7 +80,7 @@ MainLoopBatch() {
             
             hasFoundRed := true
             
-            checkboxX := outX - 40
+            checkboxX := outX - 910
             checkboxY := outY + 4
 
             ExecuteClickFast(checkboxX, checkboxY)
@@ -109,7 +109,7 @@ MainLoopBatch() {
 }
 
 ; ========================================================
-; CHỨC NĂNG 3: F9 - QUÉT 2 LẦN -> BẤM TỪNG Ổ KHÓA -> KHI SẠCH MỚI LÀM MỚI
+; CHỨC NĂNG 3: F9 - GIỮ CHUỘT TẠI Ổ KHÓA BẤM SPACE -> CHỜ -> QUAY LẠI TÌM KIẾM
 ; Phím tắt: F9 (Bật / Tắt)
 ; ========================================================
 F9:: {
@@ -176,22 +176,23 @@ MainLoopLock() {
             lockX := outX + 330
             lockY := outY + 4
 
-            ; Nhấp mở từng ổ khóa từ tốn
+            ; Di chuyển chuột tới vị trí ổ khóa và nhấp chuột
             ExecuteClickFast(lockX, lockY)
-            Sleep(Random(80, 120))
+            Sleep(Random(50, 80))
 
+            ; Bấm Space tại đúng tọa độ ổ khóa (Chuột giữ nguyên vị trí, không di chuyển đi đâu)
             Send("{Space}")
-            Sleep(Random(400, 500)) ; Khoảng nghỉ để web xác nhận mở ổ khóa từng cái một
+            Sleep(Random(400, 500)) ; Chờ 0.4s - 0.5s tại vị trí này để web phản hồi mở khóa
 
-            ; RESET VỀ DÒNG Y1 ĐỂ QUÉT LẠI TOÀN BỘ BẢNG
+            ; Reset scanY để kiểm tra lại toàn bộ bảng từ vị trí y1
             scanY := y1 
         } else {
-            ; Đã mở hết chữ đỏ -> Bấm làm mới ở lượt kế tiếp
+            ; Đã mở sạch chữ đỏ -> Thoát loop để di chuyển chuột quay lại bấm Làm mới ở đầu hàm
             break
         }
     }
 
-    Sleep(800)
+    Sleep(500)
 }
 
 ; ========================================================
