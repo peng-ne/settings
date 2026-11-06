@@ -5,9 +5,10 @@ SetWorkingDir(A_ScriptDir)
 CoordMode("Pixel", "Client")
 CoordMode("Mouse", "Client")
 
-; Biến toàn cục quản lý trạng thái F8 và F9
+; Biến toàn cục quản lý trạng thái F8, F9 và Alt+E
 global isAutoRunningF8 := false
 global isAutoRunningF9 := false
+global isRunningAltE   := false
 
 ; ========================================================
 ; CHỨC NĂNG 1: BÔI ĐEN -> COPY -> TAB 2 -> DÁN -> TÌM KIẾM
@@ -38,12 +39,34 @@ global isAutoRunningF9 := false
 }
 
 ; ========================================================
-; CHỨC NĂNG 2: LÀM MỚI -> QUÉT CHỮ ĐỎ -> TÍCH CHECKBOX -> XUẤT ĐƠN
+; CHỨC NĂNG 2: ALT + E - CLICK LẶP TRỰC TIẾP MỖI 3 GIÂY
+; Phím tắt: Alt + E (Bật / Tắt)
+; ========================================================
+!e:: {
+    global isRunningAltE
+    isRunningAltE := !isRunningAltE
+
+    if isRunningAltE {
+        SetTimer(ClickReloadAltE, 3000)
+        SoundBeep(1500, 150)
+    } else {
+        SetTimer(ClickReloadAltE, 0)
+        SoundBeep(400, 150)
+    }
+}
+
+ClickReloadAltE() {
+    ExecuteClickFast(1751, 346)
+}
+
+; ========================================================
+; CHỨC NĂNG 3: LÀM MỚI -> QUÉT CHỮ ĐỎ -> TÍCH CHECKBOX -> XUẤT ĐƠN
 ; Phím tắt: F8 (Bật / Tắt)
 ; ========================================================
 F8:: {
     global isAutoRunningF8, isAutoRunningF9
     
+    ; Tắt F9 nếu đang chạy để tránh xung đột
     if isAutoRunningF9 {
         isAutoRunningF9 := false
         SetTimer(MainLoopLock, 0)
@@ -61,10 +84,10 @@ F8:: {
 }
 
 MainLoopBatch() {
-    x1 := 910
-    y1 := 416
-    x2 := 1120
-    y2 := 1024
+    x1 := 890
+    y1 := 400
+    x2 := 1150
+    y2 := 1040
 
     ExecuteClickHuman(1442, 312)
     Sleep(1200)
@@ -75,8 +98,8 @@ MainLoopBatch() {
     Loop {
         outX := 0, outY := 0
         
-        if ImageSearch(&outX, &outY, x1, scanY, x2, y2, "*60 *Variation80 chu_do1.png")
-        || ImageSearch(&outX, &outY, x1, scanY, x2, y2, "*60 *Variation80 chu_do2.png") {
+        if ImageSearch(&outX, &outY, x1, scanY, x2, y2, "*60 *Variation90 chu_do1.png")
+        || ImageSearch(&outX, &outY, x1, scanY, x2, y2, "*60 *Variation90 chu_do2.png") {
             
             hasFoundRed := true
             
@@ -109,12 +132,13 @@ MainLoopBatch() {
 }
 
 ; ========================================================
-; CHỨC NĂNG 3: F9 - GIỮ CHUỘT TẠI Ổ KHÓA BẤM SPACE -> CHỜ -> QUAY LẠI TÌM KIẾM
+; CHỨC NĂNG 4: F9 - QUÉT 2 LẦN -> MỞ TỪNG Ổ KHÓA TỪ TỐN -> LÀM MỚI
 ; Phím tắt: F9 (Bật / Tắt)
 ; ========================================================
 F9:: {
     global isAutoRunningF8, isAutoRunningF9
 
+    ; Tắt F8 nếu đang chạy để tránh xung đột
     if isAutoRunningF8 {
         isAutoRunningF8 := false
         SetTimer(MainLoopBatch, 0)
@@ -132,33 +156,33 @@ F9:: {
 }
 
 MainLoopLock() {
-    x1 := 910
-    y1 := 416
-    x2 := 1120
-    y2 := 1024
+    x1 := 890
+    y1 := 400
+    x2 := 1150
+    y2 := 1040
 
     ; 1. BẤM NÚT TÌM KIẾM / LÀM MỚI TẠI (1442, 312)
     ExecuteClickHuman(1442, 312)
     Sleep(800) ; Đợi web bắt đầu nạp dữ liệu
 
-    ; 2. KIỂM TRA LẦN 1
+    ; 2. QUÉT KIỂM TRA LẦN 1
     hasRed := False
     outX := 0, outY := 0
-    if ImageSearch(&outX, &outY, x1, y1, x2, y2, "*60 *Variation80 chu_do1.png")
-    || ImageSearch(&outX, &outY, x1, y1, x2, y2, "*60 *Variation80 chu_do2.png") {
+    if ImageSearch(&outX, &outY, x1, y1, x2, y2, "*60 *Variation90 chu_do1.png")
+    || ImageSearch(&outX, &outY, x1, y1, x2, y2, "*60 *Variation90 chu_do2.png") {
         hasRed := True
     }
 
     ; NẾU LẦN 1 CHƯA THẤY, CHỜ THÊM 0.6s VÀ QUÉT KIỂM TRA LẦN 2
     if (!hasRed) {
         Sleep(600)
-        if ImageSearch(&outX, &outY, x1, y1, x2, y2, "*60 *Variation80 chu_do1.png")
-        || ImageSearch(&outX, &outY, x1, y1, x2, y2, "*60 *Variation80 chu_do2.png") {
+        if ImageSearch(&outX, &outY, x1, y1, x2, y2, "*60 *Variation90 chu_do1.png")
+        || ImageSearch(&outX, &outY, x1, y1, x2, y2, "*60 *Variation90 chu_do2.png") {
             hasRed := True
         }
     }
 
-    ; NẾU CẢ 2 LẦN ĐỀU KHÔNG CÓ CHỮ ĐỎ -> NGHỈ 0.5s VÀ THOÁT ĐỂ BẤM LÀM MỚI LẦN TIẾP THEO
+    ; NẾU CẢ 2 LẦN ĐỀU KHÔNG THẤY CHỮ ĐỎ -> NGHỈ 0.5s VÀ THOÁT ĐỂ THỰC HIỆN LẦN LÀM MỚI TỚI
     if (!hasRed) {
         Sleep(500)
         return
@@ -169,25 +193,27 @@ MainLoopLock() {
     Loop {
         outX := 0, outY := 0
         
-        if ImageSearch(&outX, &outY, x1, scanY, x2, y2, "*60 *Variation80 chu_do1.png")
-        || ImageSearch(&outX, &outY, x1, scanY, x2, y2, "*60 *Variation80 chu_do2.png") {
+        if ImageSearch(&outX, &outY, x1, scanY, x2, y2, "*60 *Variation90 chu_do1.png")
+        || ImageSearch(&outX, &outY, x1, scanY, x2, y2, "*60 *Variation90 chu_do2.png") {
             
-            ; Cộng khoảng cách +330px sang phải để nhấp vào icon ổ khóa
+            ; Tính vị trí icon ổ khóa (+330px sang phải)
             lockX := outX + 330
             lockY := outY + 4
 
-            ; Di chuyển chuột tới vị trí ổ khóa và nhấp chuột
+            ; Di chuyển và nhấp chuột vào icon ổ khóa
             ExecuteClickFast(lockX, lockY)
-            Sleep(Random(50, 80))
+            Sleep(Random(60, 90))
 
-            ; Bấm Space tại đúng tọa độ ổ khóa (Chuột giữ nguyên vị trí, không di chuyển đi đâu)
+            ; Bấm Space tại vị trí ổ khóa (Chuột giữ nguyên vị trí)
             Send("{Space}")
-            Sleep(Random(400, 500)) ; Chờ 0.4s - 0.5s tại vị trí này để web phản hồi mở khóa
+            
+            ; Đợi 0.6s - 0.8s cho web cập nhật xong trạng thái ổ khóa
+            Sleep(Random(600, 800))
 
-            ; Reset scanY để kiểm tra lại toàn bộ bảng từ vị trí y1
+            ; Reset scanY về y1 để kiểm tra lại từ trên xuống dưới
             scanY := y1 
         } else {
-            ; Đã mở sạch chữ đỏ -> Thoát loop để di chuyển chuột quay lại bấm Làm mới ở đầu hàm
+            ; Đã mở sạch chữ đỏ -> Thoát loop để di chuyển chuột quay lại nhấp Làm mới
             break
         }
     }
@@ -196,17 +222,19 @@ MainLoopLock() {
 }
 
 ; ========================================================
-; CHỨC NĂNG 4: TẮT DỪNG KHẨN CẤP HOÀN TOÀN (CẢ F8 VÀ F9)
+; CHỨC NĂNG 5: TẮT DỪNG KHẨN CẤP HOÀN TOÀN (TẮT CẢ F8, F9 VÀ ALT+E)
 ; Phím tắt: F10
 ; ========================================================
 F10:: {
-    global isAutoRunningF8, isAutoRunningF9
+    global isAutoRunningF8, isAutoRunningF9, isRunningAltE
     
     isAutoRunningF8 := false
     isAutoRunningF9 := false
+    isRunningAltE   := false
 
     SetTimer(MainLoopBatch, 0)
     SetTimer(MainLoopLock, 0)
+    SetTimer(ClickReloadAltE, 0)
 
     SoundBeep(400, 150)
     Sleep(50)
@@ -214,21 +242,32 @@ F10:: {
 }
 
 ; ========================================================
-; HÀM NHẤP CHUỘT CHUẨN MƯỢT
+; HÀM NHẤP CHUỘT CHUẨN MƯỢT (DÙNG CHO CÁC THAO TÁC TỪ TỐN)
 ; ========================================================
 ExecuteClickHuman(posX, posY) {
-    MouseMove(posX, posY, 3)
-    Sleep(Random(30, 50))
-    Click(posX, posY)
-    Sleep(Random(30, 50))
+    randX := posX + Random(-3, 3)
+    randY := posY + Random(-3, 3)
+
+    MouseMove(randX, randY, Random(10, 14))
+    Sleep(Random(40, 70))
+    Click(randX, randY)
+    Sleep(Random(40, 70))
 }
 
 ; ========================================================
-; HÀM NHẤP CHUỘT TỐC ĐỘ ỔN ĐỊNH
+; HÀM NHẤP CHUỘT TỰ NHIÊN (TỐC ĐỘ VỪA PHẢI, MƯỢT TRÊN ZOOM)
 ; ========================================================
 ExecuteClickFast(posX, posY) {
-    MouseMove(posX, posY, 2)
-    Sleep(Random(25, 40))
-    Click(posX, posY)
-    Sleep(Random(30, 50))
+    ; 1. Lệch nhẹ tọa độ bấm (±3px) tránh bấm trùng 1 điểm
+    randX := posX + Random(-3, 3)
+    randY := posY + Random(-3, 3)
+
+    ; 2. Tốc độ di chuyển 12-16 giúp chuột lướt mượt qua Zoom
+    MouseMove(randX, randY, Random(12, 16))
+    Sleep(Random(70, 120))
+
+    Click(randX, randY)
+
+    ; 3. Nghỉ nhẹ sau khi click
+    Sleep(Random(80, 130))
 }
