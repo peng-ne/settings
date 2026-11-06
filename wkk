@@ -44,7 +44,6 @@ global isAutoRunningF9 := false
 F8:: {
     global isAutoRunningF8, isAutoRunningF9
     
-    ; Tắt F9 nếu F9 đang chạy để tránh xung đột
     if isAutoRunningF9 {
         isAutoRunningF9 := false
         SetTimer(MainLoopLock, 0)
@@ -62,20 +61,17 @@ F8:: {
 }
 
 MainLoopBatch() {
-    ; Tọa độ chuẩn vùng quét cột 订单状态 (chứa chữ đỏ "待审核")
     x1 := 910
     y1 := 416
     x2 := 1120
     y2 := 1024
 
-    ; 1. BẤM NÚT TÌM KIẾM / LÀM MỚI (1442, 312)
     ExecuteClickHuman(1442, 312)
     Sleep(1200)
 
     hasFoundRed := false
     scanY := y1
 
-    ; 2. QUÉT VÀ TÍCH CHỌN TẤT CẢ DÒNG CÓ CHỮ ĐỎ (QUÉT CẢ 2 MẪU CHỮ ĐỎ)
     Loop {
         outX := 0, outY := 0
         
@@ -84,8 +80,7 @@ MainLoopBatch() {
             
             hasFoundRed := true
             
-            ; Tính lùi từ chữ đỏ (X: ~937) về ô vuông Checkbox đầu dòng (X: ~27)
-            checkboxX := outX - 910
+            checkboxX := outX - 40
             checkboxY := outY + 4
 
             ExecuteClickFast(checkboxX, checkboxY)
@@ -99,7 +94,6 @@ MainLoopBatch() {
         }
     }
 
-    ; 3. BẤM XUẤT ĐƠN & TẮT POPUP
     if (hasFoundRed) {
         ExecuteClickHuman(979, 360)
         Sleep(Random(300, 400))
@@ -115,13 +109,12 @@ MainLoopBatch() {
 }
 
 ; ========================================================
-; CHỨC NĂNG 3: LÀM MỚI -> MỞ KHIẾN HẾT CHỮ ĐỎ MỚI LÀM MỚI TIẾP
+; CHỨC NĂNG 3: F9 - QUÉT 2 LẦN -> BẤM TỪNG Ổ KHÓA -> KHI SẠCH MỚI LÀM MỚI
 ; Phím tắt: F9 (Bật / Tắt)
 ; ========================================================
 F9:: {
     global isAutoRunningF8, isAutoRunningF9
 
-    ; Tắt F8 nếu F8 đang chạy để tránh xung đột
     if isAutoRunningF8 {
         isAutoRunningF8 := false
         SetTimer(MainLoopBatch, 0)
@@ -144,33 +137,56 @@ MainLoopLock() {
     x2 := 1120
     y2 := 1024
 
-    ; 1. BẤM NÚT TÌM KIẾM / LÀM MỚI (1442, 312)
+    ; 1. BẤM NÚT TÌM KIẾM / LÀM MỚI TẠI (1442, 312)
     ExecuteClickHuman(1442, 312)
-    Sleep(1200)
+    Sleep(800) ; Đợi web bắt đầu nạp dữ liệu
 
+    ; 2. KIỂM TRA LẦN 1
+    hasRed := False
+    outX := 0, outY := 0
+    if ImageSearch(&outX, &outY, x1, y1, x2, y2, "*60 *Variation80 chu_do1.png")
+    || ImageSearch(&outX, &outY, x1, y1, x2, y2, "*60 *Variation80 chu_do2.png") {
+        hasRed := True
+    }
+
+    ; NẾU LẦN 1 CHƯA THẤY, CHỜ THÊM 0.6s VÀ QUÉT KIỂM TRA LẦN 2
+    if (!hasRed) {
+        Sleep(600)
+        if ImageSearch(&outX, &outY, x1, y1, x2, y2, "*60 *Variation80 chu_do1.png")
+        || ImageSearch(&outX, &outY, x1, y1, x2, y2, "*60 *Variation80 chu_do2.png") {
+            hasRed := True
+        }
+    }
+
+    ; NẾU CẢ 2 LẦN ĐỀU KHÔNG CÓ CHỮ ĐỎ -> NGHỈ 0.5s VÀ THOÁT ĐỂ BẤM LÀM MỚI LẦN TIẾP THEO
+    if (!hasRed) {
+        Sleep(500)
+        return
+    }
+
+    ; 3. VÒNG LẶP MỞ TỪNG Ổ KHÓA NẾU PHÁT HIỆN CHỮ ĐỎ
     scanY := y1
-
-    ; 2. QUÉT CHỮ ĐỎ VÀ MỞ KHÓA CHO ĐẾN KHÔNG CÒN CHỮ ĐỎ NÀO
     Loop {
         outX := 0, outY := 0
         
         if ImageSearch(&outX, &outY, x1, scanY, x2, y2, "*60 *Variation80 chu_do1.png")
         || ImageSearch(&outX, &outY, x1, scanY, x2, y2, "*60 *Variation80 chu_do2.png") {
             
-            ; Cộng khoảng cách +330px sang phải để bấm đúng vào icon ổ khóa
+            ; Cộng khoảng cách +330px sang phải để nhấp vào icon ổ khóa
             lockX := outX + 330
             lockY := outY + 4
 
+            ; Nhấp mở từng ổ khóa từ tốn
             ExecuteClickFast(lockX, lockY)
-            Sleep(Random(40, 70))
+            Sleep(Random(80, 120))
 
             Send("{Space}")
-            Sleep(Random(300, 400)) ; Đợi bảng nạp trạng thái mở khóa
+            Sleep(Random(400, 500)) ; Khoảng nghỉ để web xác nhận mở ổ khóa từng cái một
 
-            ; RESET VỀ Y1 ĐỂ QUÉT LẠI TỪ ĐẦU BẢNG XEM CÒN CHỮ ĐỎ NÀO KHÔNG
+            ; RESET VỀ DÒNG Y1 ĐỂ QUÉT LẠI TOÀN BỘ BẢNG
             scanY := y1 
         } else {
-            ; Đã mở sạch toàn bộ chữ đỏ -> Thoát loop để bấm Làm mới lượt tiếp theo
+            ; Đã mở hết chữ đỏ -> Bấm làm mới ở lượt kế tiếp
             break
         }
     }
@@ -207,11 +223,11 @@ ExecuteClickHuman(posX, posY) {
 }
 
 ; ========================================================
-; HÀM NHẤP CHUỘT SIÊU TỐC
+; HÀM NHẤP CHUỘT TỐC ĐỘ ỔN ĐỊNH
 ; ========================================================
 ExecuteClickFast(posX, posY) {
-    MouseMove(posX, posY, 1)
-    Sleep(Random(15, 30))
+    MouseMove(posX, posY, 2)
+    Sleep(Random(25, 40))
     Click(posX, posY)
-    Sleep(Random(20, 40))
+    Sleep(Random(30, 50))
 }
