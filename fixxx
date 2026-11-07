@@ -24,7 +24,7 @@ F9:: {
 }
 
 MainLoopLock() {
-    ; Tọa độ vùng quét mới
+    ; Tọa độ vùng quét
     x1 := 532
     y1 := 434
     x2 := 619
@@ -36,7 +36,7 @@ MainLoopLock() {
     ; Thời gian chờ load bảng sau khi làm mới (1.4s - 1.7s)
     Sleep(Random(1400, 1700))
 
-    ; 2. QUÉT KIỂM TRA ĐẦU VÀO (2 LẦN) - ĐÃ SỬA CÚ PHÁP *90 CHUẨN AHK V2
+    ; 2. QUÉT KIỂM TRA ĐẦU VÀO (2 LẦN)
     hasRed := False
     outX := 0, outY := 0
     if ImageSearch(&outX, &outY, x1, y1, x2, y2, "*90 chu_do1.png")
