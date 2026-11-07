@@ -5,12 +5,10 @@ SetWorkingDir(A_ScriptDir)
 CoordMode("Pixel", "Client")
 CoordMode("Mouse", "Client")
 
-; Biến toàn cục quản lý trạng thái F9
 global isAutoRunningF9 := false
 
 ; ========================================================
-; CHỨC NĂNG F9: CẤU HÌNH ĐÃ TỐI ƯU THỜI GIAN LOAD CHỜ DỮ LIỆU
-; Phím tắt: F9 (Bật / Tắt)
+; PHÍM TẮT F9 (BẬT / TẮT LẶP LẠI)
 ; ========================================================
 F9:: {
     global isAutoRunningF9
@@ -26,29 +24,30 @@ F9:: {
 }
 
 MainLoopLock() {
-    x1 := 890
-    y1 := 400
-    x2 := 1150
-    y2 := 1040
+    ; Tọa độ vùng quét mới
+    x1 := 532
+    y1 := 434
+    x2 := 619
+    y2 := 964
 
-    ; 1. BẤM NÚT TÌM KIẾM / LÀM MỚI TẠI (1442, 312)
-    ExecuteClickHuman(1442, 312)
+    ; 1. BẤM NÚT TÌM KIẾM / LÀM MỚI TẠI (1756, 341)
+    ExecuteClickHuman(1756, 341)
     
     ; Thời gian chờ load bảng sau khi làm mới (1.4s - 1.7s)
     Sleep(Random(1400, 1700))
 
-    ; 2. QUÉT KIỂM TRA ĐẦU VÀO (2 LẦN)
+    ; 2. QUÉT KIỂM TRA ĐẦU VÀO (2 LẦN) - ĐÃ SỬA CÚ PHÁP *90 CHUẨN AHK V2
     hasRed := False
     outX := 0, outY := 0
-    if ImageSearch(&outX, &outY, x1, y1, x2, y2, "*60 *Variation90 chu_do1.png")
-    || ImageSearch(&outX, &outY, x1, y1, x2, y2, "*60 *Variation90 chu_do2.png") {
+    if ImageSearch(&outX, &outY, x1, y1, x2, y2, "*90 chu_do1.png")
+    || ImageSearch(&outX, &outY, x1, y1, x2, y2, "*90 chu_do2.png") {
         hasRed := True
     }
 
     if (!hasRed) {
         Sleep(1000) ; Chờ thêm 1.0s quét lần 2 nếu web nạp chậm
-        if ImageSearch(&outX, &outY, x1, y1, x2, y2, "*60 *Variation90 chu_do1.png")
-        || ImageSearch(&outX, &outY, x1, y1, x2, y2, "*60 *Variation90 chu_do2.png") {
+        if ImageSearch(&outX, &outY, x1, y1, x2, y2, "*90 chu_do1.png")
+        || ImageSearch(&outX, &outY, x1, y1, x2, y2, "*90 chu_do2.png") {
             hasRed := True
         }
     }
@@ -63,12 +62,13 @@ MainLoopLock() {
     Loop {
         outX := 0, outY := 0
         
-        if ImageSearch(&outX, &outY, x1, scanY, x2, y2, "*60 *Variation90 chu_do1.png")
-        || ImageSearch(&outX, &outY, x1, scanY, x2, y2, "*60 *Variation90 chu_do2.png") {
+        if ImageSearch(&outX, &outY, x1, scanY, x2, y2, "*90 chu_do1.png")
+        || ImageSearch(&outX, &outY, x1, scanY, x2, y2, "*90 chu_do2.png") {
             
             Sleep(Random(350, 500))
 
-            lockX := outX + 330
+            ; Cộng sang phải +1166px để bấm ổ khóa
+            lockX := outX + 1166
             lockY := outY + 4
 
             ExecuteClickFast(lockX, lockY)
@@ -92,20 +92,7 @@ MainLoopLock() {
 }
 
 ; ========================================================
-
-; ========================================================
-F10:: {
-    global isAutoRunningF9
-    isAutoRunningF9 := false
-    SetTimer(MainLoopLock, 0)
-
-    SoundBeep(400, 150)
-    Sleep(50)
-    SoundBeep(300, 200)
-}
-
-; ========================================================
-; HÀM NHẤP CHUỘT CHUẨN MƯỢT
+; HÀM NHẤP CHUỘT CHUẨN MƯỢT (NÚT LÀM MỚI)
 ; ========================================================
 ExecuteClickHuman(posX, posY) {
     randX := posX + Random(-3, 3)
@@ -118,7 +105,7 @@ ExecuteClickHuman(posX, posY) {
 }
 
 ; ========================================================
-; HÀM NHẤP CHUỘT TỰ NHIÊN (TỐC ĐỘ GIẢ TAY NGƯỜI DÙNG)
+; HÀM NHẤP CHUỘT TỰ NHIÊN (ICON Ổ KHÓA)
 ; ========================================================
 ExecuteClickFast(posX, posY) {
     randX := posX + Random(-3, 3)
