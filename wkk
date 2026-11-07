@@ -1,4 +1,5 @@
 #Requires AutoHotkey v2.0
+#Notrayicon
 
 SetWorkingDir(A_ScriptDir)
 
@@ -132,7 +133,7 @@ MainLoopBatch() {
 }
 
 ; ========================================================
-; CHỨC NĂNG 4: F9 - QUÉT 2 LẦN -> MỞ TỪNG Ổ KHÓA TỪ TỐN -> LÀM MỚI
+; CHỨC NĂNG 4: F9 - CHỜ NẠP 1.5S -> MỞ TỪNG Ổ KHÓA CHUẨN ĐỘ TRỄ -> LÀM MỚI
 ; Phím tắt: F9 (Bật / Tắt)
 ; ========================================================
 F9:: {
@@ -163,9 +164,11 @@ MainLoopLock() {
 
     ; 1. BẤM NÚT TÌM KIẾM / LÀM MỚI TẠI (1442, 312)
     ExecuteClickHuman(1442, 312)
-    Sleep(800) ; Đợi web bắt đầu nạp dữ liệu
+    
+    ; Tăng thời gian chờ load bảng sau khi làm mới (1.4s - 1.7s)
+    Sleep(Random(1400, 1700))
 
-    ; 2. QUÉT KIỂM TRA LẦN 1
+    ; 2. QUÉT KIỂM TRA ĐẦU VÀO (2 LẦN)
     hasRed := False
     outX := 0, outY := 0
     if ImageSearch(&outX, &outY, x1, y1, x2, y2, "*60 *Variation90 chu_do1.png")
@@ -173,22 +176,20 @@ MainLoopLock() {
         hasRed := True
     }
 
-    ; NẾU LẦN 1 CHƯA THẤY, CHỜ THÊM 0.6s VÀ QUÉT KIỂM TRA LẦN 2
     if (!hasRed) {
-        Sleep(600)
+        Sleep(1000) ; Chờ thêm 1.0s quét lần 2 nếu web nạp chậm
         if ImageSearch(&outX, &outY, x1, y1, x2, y2, "*60 *Variation90 chu_do1.png")
         || ImageSearch(&outX, &outY, x1, y1, x2, y2, "*60 *Variation90 chu_do2.png") {
             hasRed := True
         }
     }
 
-    ; NẾU CẢ 2 LẦN ĐỀU KHÔNG THẤY CHỮ ĐỎ -> NGHỈ 0.5s VÀ THOÁT ĐỂ THỰC HIỆN LẦN LÀM MỚI TỚI
     if (!hasRed) {
-        Sleep(500)
+        Sleep(600)
         return
     }
 
-    ; 3. VÒNG LẶP MỞ TỪNG Ổ KHÓA NẾU PHÁT HIỆN CHỮ ĐỎ
+    ; 3. VÒNG LẶP MỞ TẤT CẢ Ổ KHÓA CÒN LẠI RỒI MỚI QUAY LẠI LÀM MỚI
     scanY := y1
     Loop {
         outX := 0, outY := 0
@@ -196,29 +197,29 @@ MainLoopLock() {
         if ImageSearch(&outX, &outY, x1, scanY, x2, y2, "*60 *Variation90 chu_do1.png")
         || ImageSearch(&outX, &outY, x1, scanY, x2, y2, "*60 *Variation90 chu_do2.png") {
             
-            ; Tính vị trí icon ổ khóa (+330px sang phải)
+            Sleep(Random(350, 500))
+
             lockX := outX + 330
             lockY := outY + 4
 
-            ; Di chuyển và nhấp chuột vào icon ổ khóa
             ExecuteClickFast(lockX, lockY)
-            Sleep(Random(60, 90))
+            Sleep(Random(120, 180))
 
-            ; Bấm Space tại vị trí ổ khóa (Chuột giữ nguyên vị trí)
             Send("{Space}")
             
-            ; Đợi 0.6s - 0.8s cho web cập nhật xong trạng thái ổ khóa
-            Sleep(Random(600, 800))
+            ; TĂNG THỜI GIAN CHỜ WEB LOAD XONG TRẠNG THÁI (1.4s - 1.8s)
+            Sleep(Random(1400, 1800))
 
-            ; Reset scanY về y1 để kiểm tra lại từ trên xuống dưới
-            scanY := y1 
+            ; Nhảy 15px xuống dưới dòng vừa xử lý để tìm tiếp dòng dưới
+            scanY := outY + 15
+            if (scanY >= y2)
+                break
         } else {
-            ; Đã mở sạch chữ đỏ -> Thoát loop để di chuyển chuột quay lại nhấp Làm mới
             break
         }
     }
 
-    Sleep(500)
+    Sleep(600)
 }
 
 ; ========================================================
@@ -258,16 +259,13 @@ ExecuteClickHuman(posX, posY) {
 ; HÀM NHẤP CHUỘT TỰ NHIÊN (TỐC ĐỘ VỪA PHẢI, MƯỢT TRÊN ZOOM)
 ; ========================================================
 ExecuteClickFast(posX, posY) {
-    ; 1. Lệch nhẹ tọa độ bấm (±3px) tránh bấm trùng 1 điểm
     randX := posX + Random(-3, 3)
     randY := posY + Random(-3, 3)
 
-    ; 2. Tốc độ di chuyển 12-16 giúp chuột lướt mượt qua Zoom
     MouseMove(randX, randY, Random(12, 16))
     Sleep(Random(70, 120))
 
     Click(randX, randY)
 
-    ; 3. Nghỉ nhẹ sau khi click
     Sleep(Random(80, 130))
 }
