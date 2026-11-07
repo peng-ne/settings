@@ -1,0 +1,133 @@
+#Requires AutoHotkey v2.0
+
+SetWorkingDir(A_ScriptDir)
+
+CoordMode("Pixel", "Client")
+CoordMode("Mouse", "Client")
+
+; Biến toàn cục quản lý trạng thái F9
+global isAutoRunningF9 := false
+
+; ========================================================
+; CHỨC NĂNG F9: CẤU HÌNH ĐÃ TỐI ƯU THỜI GIAN LOAD CHỜ DỮ LIỆU
+; Phím tắt: F9 (Bật / Tắt)
+; ========================================================
+F9:: {
+    global isAutoRunningF9
+    isAutoRunningF9 := !isAutoRunningF9
+
+    if isAutoRunningF9 {
+        SetTimer(MainLoopLock, 150)
+        SoundBeep(2000, 190)
+    } else {
+        SetTimer(MainLoopLock, 0)
+        SoundBeep(500, 200)
+    }
+}
+
+MainLoopLock() {
+    x1 := 890
+    y1 := 400
+    x2 := 1150
+    y2 := 1040
+
+    ; 1. BẤM NÚT TÌM KIẾM / LÀM MỚI TẠI (1442, 312)
+    ExecuteClickHuman(1442, 312)
+    
+    ; Thời gian chờ load bảng sau khi làm mới (1.4s - 1.7s)
+    Sleep(Random(1400, 1700))
+
+    ; 2. QUÉT KIỂM TRA ĐẦU VÀO (2 LẦN)
+    hasRed := False
+    outX := 0, outY := 0
+    if ImageSearch(&outX, &outY, x1, y1, x2, y2, "*60 *Variation90 chu_do1.png")
+    || ImageSearch(&outX, &outY, x1, y1, x2, y2, "*60 *Variation90 chu_do2.png") {
+        hasRed := True
+    }
+
+    if (!hasRed) {
+        Sleep(1000) ; Chờ thêm 1.0s quét lần 2 nếu web nạp chậm
+        if ImageSearch(&outX, &outY, x1, y1, x2, y2, "*60 *Variation90 chu_do1.png")
+        || ImageSearch(&outX, &outY, x1, y1, x2, y2, "*60 *Variation90 chu_do2.png") {
+            hasRed := True
+        }
+    }
+
+    if (!hasRed) {
+        Sleep(600)
+        return
+    }
+
+    ; 3. VÒNG LẶP MỞ TẤT CẢ Ổ KHÓA CÒN LẠI RỒI MỚI QUAY LẠI LÀM MỚI
+    scanY := y1
+    Loop {
+        outX := 0, outY := 0
+        
+        if ImageSearch(&outX, &outY, x1, scanY, x2, y2, "*60 *Variation90 chu_do1.png")
+        || ImageSearch(&outX, &outY, x1, scanY, x2, y2, "*60 *Variation90 chu_do2.png") {
+            
+            Sleep(Random(350, 500))
+
+            lockX := outX + 330
+            lockY := outY + 4
+
+            ExecuteClickFast(lockX, lockY)
+            Sleep(Random(120, 180))
+
+            Send("{Space}")
+            
+            ; Thời gian chờ web nạp xong trạng thái (1.4s - 1.8s)
+            Sleep(Random(1400, 1800))
+
+            ; Nhảy 15px xuống dưới dòng vừa xử lý để tìm tiếp dòng dưới
+            scanY := outY + 15
+            if (scanY >= y2)
+                break
+        } else {
+            break
+        }
+    }
+
+    Sleep(600)
+}
+
+; ========================================================
+
+; ========================================================
+F10:: {
+    global isAutoRunningF9
+    isAutoRunningF9 := false
+    SetTimer(MainLoopLock, 0)
+
+    SoundBeep(400, 150)
+    Sleep(50)
+    SoundBeep(300, 200)
+}
+
+; ========================================================
+; HÀM NHẤP CHUỘT CHUẨN MƯỢT
+; ========================================================
+ExecuteClickHuman(posX, posY) {
+    randX := posX + Random(-3, 3)
+    randY := posY + Random(-3, 3)
+
+    MouseMove(randX, randY, Random(10, 14))
+    Sleep(Random(40, 70))
+    Click(randX, randY)
+    Sleep(Random(40, 70))
+}
+
+; ========================================================
+; HÀM NHẤP CHUỘT TỰ NHIÊN (TỐC ĐỘ GIẢ TAY NGƯỜI DÙNG)
+; ========================================================
+ExecuteClickFast(posX, posY) {
+    randX := posX + Random(-3, 3)
+    randY := posY + Random(-3, 3)
+
+    MouseMove(randX, randY, Random(12, 16))
+    Sleep(Random(70, 120))
+
+    Click(randX, randY)
+
+    Sleep(Random(80, 130))
+}
