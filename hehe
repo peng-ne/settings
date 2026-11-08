@@ -6,39 +6,105 @@ CoordMode("Pixel", "Client")
 CoordMode("Mouse", "Client")
 
 ; ========================================================
-; CHỨC NĂNG: BÔI ĐEN -> COPY -> TAB 2 -> DÁN -> TÌM KIẾM
-; Phím tắt: Ctrl + Shift + E
+; ⚙️ CẤU HÌNH TỌA ĐỘ & THỜI GIAN (ĐÃ CĂN CHỈNH)
 ; ========================================================
-^+e:: {
-    A_Clipboard := ""
-    Send("^c")
-    if !ClipWait(1) {
-        return
+global CFG_OKHOA_X      := 1767        ; Tọa độ X ổ khóa
+global CFG_LAMMOI_X     := 1756        ; Tọa độ X nút Làm mới
+global CFG_LAMMOI_Y     := 341         ; Tọa độ Y nút Làm mới
+
+global CFG_SCAN_X1      := 532         ; Mép trái vùng quét
+global CFG_SCAN_Y1      := 420         ; Mép trên vùng quét
+global CFG_SCAN_X2      := 620         ; Mép phải vùng quét
+global CFG_SCAN_Y2      := 964         ; Mép dưới vùng quét
+
+global CFG_LOCK_Y_OFFSET:= 8           ; Độ lệch Y vào tâm ổ khóa (+8px)
+global CFG_VARIATION    := "*90"       ; Độ lệch màu AHK v2
+
+global CFG_IMG1         := "chu_do1.png"
+global CFG_IMG2         := "chu_do2.png"
+
+global isAutoRunningF9 := false
+
+; ========================================================
+; PHÍM TẮT F9 (BẬT / TẮT LẶP LẠI)
+; ========================================================
+F9:: {
+    global isAutoRunningF9
+    isAutoRunningF9 := !isAutoRunningF9
+
+    if isAutoRunningF9 {
+        SetTimer(MainLoopLock, 100)
+        SoundBeep(2000, 190)
+    } else {
+        SetTimer(MainLoopLock, 0)
+        SoundBeep(500, 200)
+    }
+}
+
+MainLoopLock() {
+    ; 1. BẤM NÚT LÀM MỚI BAN ĐẦU
+    ExecuteClickHuman(CFG_LAMMOI_X, CFG_LAMMOI_Y)
+    
+    ; Đợi web nạp bảng dữ liệu sau khi bấm làm mới (1.2s - 1.5s)
+    Sleep(Random(1200, 1500))
+
+    ; 2. VÒNG LẶP QUÉT VÀ MỞ TẤT CẢ Ổ KHÓA CÒN LẠI (SẠCH BÓNG MỚI VỀ LÀM MỚI)
+    Loop {
+        outX := 0, outY := 0
+        
+        ; Luôn quét lại toàn bộ vùng từ CFG_SCAN_Y1 xuống CFG_SCAN_Y2
+        if ImageSearch(&outX, &outY, CFG_SCAN_X1, CFG_SCAN_Y1, CFG_SCAN_X2, CFG_SCAN_Y2, CFG_VARIATION " " CFG_IMG1)
+        || ImageSearch(&outX, &outY, CFG_SCAN_X1, CFG_SCAN_Y1, CFG_SCAN_X2, CFG_SCAN_Y2, CFG_VARIATION " " CFG_IMG2) {
+            
+            ; Thấy chữ đỏ -> Nghỉ nhẹ 0.1s trước khi di chuột
+            Sleep(Random(100, 150))
+
+            lockX := CFG_OKHOA_X
+            lockY := outY + CFG_LOCK_Y_OFFSET
+
+            ; Di chuyển chuột nhanh tới ổ khóa và click
+            ExecuteClickFast(lockX, lockY)
+            Sleep(Random(30, 60))
+
+            ; Bấm Space tại ổ khóa
+            Send("{Space}")
+            
+            ; CHỜ TRANG WEB NẠP XONG VÀ MẤT CHỮ ĐỎ (1.2s - 1.5s)
+            ; Khoảng chờ này cực kỳ quan trọng để web đổi màu chữ đỏ thành công trước khi quét lại
+            Sleep(Random(1200, 1500))
+
+            ; Tiếp tục vòng lặp để QUÉT LẠI MỚI hoàn toàn tại chỗ
+            continue
+        } else {
+            ; KHÔNG CÒN BẤT KỲ CHỮ ĐỎ NÀO TRÊN MÀN HÌNH -> Mới thoát ra để về bấm nút Làm mới
+            break
+        }
     }
 
-    Send("^2")
-    Sleep(Random(150, 200))
-
-    ExecuteClickFast(967, 204) ; Click Nút 1
-    Sleep(Random(80, 120))
-
-    Send("^a")
-    Sleep(30)
-    Send("{BS}")
-    Sleep(Random(40, 80))
-
-    Send("^v")
-    Sleep(Random(80, 120))
-
-    ExecuteClickFast(724, 309) ; Click Nút 2
+    Sleep(400)
 }
 
 ; ========================================================
-; HÀM NHẤP CHUỘT SIÊU TỐC (Speed 1)
+; HÀM NHẤP CHUỘT
 ; ========================================================
+ExecuteClickHuman(posX, posY) {
+    randX := posX + Random(-2, 2)
+    randY := posY + Random(-2, 2)
+
+    MouseMove(randX, randY, Random(8, 12))
+    Sleep(Random(40, 60))
+    Click(randX, randY)
+    Sleep(Random(40, 60))
+}
+
 ExecuteClickFast(posX, posY) {
-    MouseMove(posX, posY, 1) ; Tốc độ di chuột tối đa (Speed 1)
+    randX := posX + Random(-2, 2)
+    randY := posY + Random(-2, 2)
+
+    MouseMove(randX, randY, Random(4, 6))
     Sleep(Random(30, 50))
-    Click(posX, posY)
+
+    Click(randX, randY)
+
     Sleep(Random(40, 60))
 }
