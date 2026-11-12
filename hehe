@@ -23,7 +23,28 @@ global CFG_VARIATION    := "*90"       ; Độ lệch màu AHK v2
 global CFG_IMG1         := "chu_do1.png"
 global CFG_IMG2         := "chu_do2.png"
 
-global isAutoRunningAltE := false
+global isAutoRunningAltA := false
+global isAutoRunningAltB := false
+global isScriptClicking  := false      ; Cờ phân biệt click của người và của script
+
+; ========================================================
+; TÍNH NĂNG DỪNG KHẨN CẤP: DOUBLE-CLICK CHUỘT TRÁI ĐỂ TẮT AUTO
+; ========================================================
+~LButton:: {
+    global isAutoRunningAltA, isAutoRunningAltB, isScriptClicking
+
+    if (isScriptClicking)
+        return
+
+    if (A_PriorHotkey = "~LButton" && A_TimeSincePriorHotkey < 400) {
+        if (isAutoRunningAltA || isAutoRunningAltB) {
+            isAutoRunningAltA := false
+            isAutoRunningAltB := false
+            SetTimer(MainLoopLock, 0)
+            SetTimer(MainLoopLockSlow, 0)
+        }
+    }
+}
 
 ; ========================================================
 ; CHỨC NĂNG 1: BÔI ĐEN -> COPY -> TAB 2 -> DÁN -> TÌM KIẾM
@@ -54,57 +75,54 @@ global isAutoRunningAltE := false
 }
 
 ; ========================================================
-; CHỨC NĂNG 2: PHÍM TẮT ALT + E (BẬT / TẮT TỰ ĐỘNG MỞ Ổ KHÓA)
-; Phím tắt: Alt + E
+; CHỨC NĂNG 2: ALT + A (TỐC ĐỘ NHANH CHUẨN)
 ; ========================================================
-!e:: {
-    global isAutoRunningAltE
-    isAutoRunningAltE := !isAutoRunningAltE
+!a:: {
+    global isAutoRunningAltA, isAutoRunningAltB
 
-    if isAutoRunningAltE {
+    if isAutoRunningAltB {
+        isAutoRunningAltB := false
+        SetTimer(MainLoopLockSlow, 0)
+    }
+
+    isAutoRunningAltA := !isAutoRunningAltA
+
+    if isAutoRunningAltA {
         SetTimer(MainLoopLock, 100)
-        SoundBeep(2000, 190)
     } else {
         SetTimer(MainLoopLock, 0)
-        SoundBeep(500, 200)
     }
 }
 
 MainLoopLock() {
-    ; 1. BẤM NÚT LÀM MỚI BAN ĐẦU
+    global isAutoRunningAltA
+    if (!isAutoRunningAltA)
+        return
+
     ExecuteClickHuman(CFG_LAMMOI_X, CFG_LAMMOI_Y)
-    
-    ; Đợi web nạp bảng dữ liệu sau khi bấm làm mới (1.2s - 1.5s)
     Sleep(Random(1200, 1500))
 
-    ; 2. VÒNG LẶP QUÉT VÀ MỞ TẤT CẢ Ổ KHÓA CÒN LẠI (SẠCH BÓNG MỚI VỀ LÀM MỚI)
     Loop {
+        if (!isAutoRunningAltA)
+            break
+
         outX := 0, outY := 0
-        
-        ; Luôn quét lại toàn bộ vùng từ CFG_SCAN_Y1 xuống CFG_SCAN_Y2
         if ImageSearch(&outX, &outY, CFG_SCAN_X1, CFG_SCAN_Y1, CFG_SCAN_X2, CFG_SCAN_Y2, CFG_VARIATION " " CFG_IMG1)
         || ImageSearch(&outX, &outY, CFG_SCAN_X1, CFG_SCAN_Y1, CFG_SCAN_X2, CFG_SCAN_Y2, CFG_VARIATION " " CFG_IMG2) {
             
-            ; Thấy chữ đỏ -> Nghỉ nhẹ 0.1s trước khi di chuột sang ổ khóa
             Sleep(Random(100, 150))
 
             lockX := CFG_OKHOA_X
             lockY := outY + CFG_LOCK_Y_OFFSET
 
-            ; Di chuyển chuột nhanh tới ổ khóa và click
             ExecuteClickFast(lockX, lockY)
             Sleep(Random(30, 60))
 
-            ; Bấm Space tại vị trí ổ khóa
             Send("{Space}")
-            
-            ; CHỜ TRANG WEB NẠP XONG VÀ MẤT CHỮ ĐỎ (1.2s - 1.5s)
             Sleep(Random(1200, 1500))
 
-            ; Tiếp tục vòng lặp để QUÉT LẠI MỚI hoàn toàn tại chỗ
             continue
         } else {
-            ; KHÔNG CÒN BẤT KỲ CHỮ ĐỎ NÀO TRÊN MÀN HÌNH -> Mới thoát ra để về bấm nút Làm mới
             break
         }
     }
@@ -113,26 +131,108 @@ MainLoopLock() {
 }
 
 ; ========================================================
+; CHỨC NĂNG 3: ALT + B (CHẬM HƠN 50% SO VỚI ALT + A)
+; ========================================================
+!b:: {
+    global isAutoRunningAltA, isAutoRunningAltB
+
+    if isAutoRunningAltA {
+        isAutoRunningAltA := false
+        SetTimer(MainLoopLock, 0)
+    }
+
+    isAutoRunningAltB := !isAutoRunningAltB
+
+    if isAutoRunningAltB {
+        SetTimer(MainLoopLockSlow, 150)
+    } else {
+        SetTimer(MainLoopLockSlow, 0)
+    }
+}
+
+MainLoopLockSlow() {
+    global isAutoRunningAltB
+    if (!isAutoRunningAltB)
+        return
+
+    ExecuteClickSlow(CFG_LAMMOI_X, CFG_LAMMOI_Y)
+    Sleep(Random(1800, 2250))
+
+    Loop {
+        if (!isAutoRunningAltB)
+            break
+
+        outX := 0, outY := 0
+        if ImageSearch(&outX, &outY, CFG_SCAN_X1, CFG_SCAN_Y1, CFG_SCAN_X2, CFG_SCAN_Y2, CFG_VARIATION " " CFG_IMG1)
+        || ImageSearch(&outX, &outY, CFG_SCAN_X1, CFG_SCAN_Y1, CFG_SCAN_X2, CFG_SCAN_Y2, CFG_VARIATION " " CFG_IMG2) {
+            
+            Sleep(Random(150, 225))
+
+            lockX := CFG_OKHOA_X
+            lockY := outY + CFG_LOCK_Y_OFFSET
+
+            ExecuteClickSlow(lockX, lockY)
+            Sleep(Random(45, 90))
+
+            Send("{Space}")
+            Sleep(Random(1800, 2250))
+
+            continue
+        } else {
+            break
+        }
+    }
+
+    Sleep(600)
+}
+
+; ========================================================
 ; HÀM NHẤP CHUỘT
 ; ========================================================
 ExecuteClickHuman(posX, posY) {
+    global isScriptClicking
     randX := posX + Random(-2, 2)
     randY := posY + Random(-2, 2)
 
     MouseMove(randX, randY, Random(8, 12))
     Sleep(Random(40, 60))
+    
+    isScriptClicking := true
     Click(randX, randY)
+    Sleep(20)
+    isScriptClicking := false
+    
     Sleep(Random(40, 60))
 }
 
 ExecuteClickFast(posX, posY) {
+    global isScriptClicking
     randX := posX + Random(-2, 2)
     randY := posY + Random(-2, 2)
 
     MouseMove(randX, randY, Random(4, 6))
     Sleep(Random(30, 50))
-
+    
+    isScriptClicking := true
     Click(randX, randY)
-
+    Sleep(20)
+    isScriptClicking := false
+    
     Sleep(Random(40, 60))
+}
+
+ExecuteClickSlow(posX, posY) {
+    global isScriptClicking
+    randX := posX + Random(-2, 2)
+    randY := posY + Random(-2, 2)
+
+    MouseMove(randX, randY, Random(6, 9))
+    Sleep(Random(45, 75))
+    
+    isScriptClicking := true
+    Click(randX, randY)
+    Sleep(20)
+    isScriptClicking := false
+    
+    Sleep(Random(60, 90))
 }
