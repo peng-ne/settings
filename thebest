@@ -188,38 +188,37 @@ MainLoopLockSlow() {
 }
 
 ; ========================================================
-; THUẬT TOÁN DI CHUỘT ĐƯỜNG CONG BEZIER + RUNG TAY VI MÔ (HZ)
+; THUẬT TOÁN DI CHUỘT VẨY NHANH + ĐỘ RUNG TỰ NHIÊN
 ; ========================================================
 HumanMouseMove(targetX, targetY, durationMs) {
     MouseGetPos(&startX, &startY)
     
     dist := Sqrt((targetX - startX)**2 + (targetY - startY)**2)
-    if (dist < 3) {
+    if (dist < 4) {
         MouseMove(targetX, targetY, 0)
         return
     }
 
-    ; Tạo 2 điểm bẻ cong ngẫu nhiên mô phỏng quỹ đạo cổ tay
-    arc := Min(dist * 0.15, 75) ; Độ võng tối đa 75px tùy khoảng cách
+    arc := Min(dist * 0.08, 28)
     dir := Random(0, 1) ? 1 : -1
 
-    ctrl1X := startX + (targetX - startX) * Random(20, 40) / 100 + Random(-arc, arc) * dir
-    ctrl1Y := startY + (targetY - startY) * Random(20, 40) / 100 + Random(-arc, arc) * dir
+    ctrl1X := startX + (targetX - startX) * Random(25, 45) / 100 + Random(-arc, arc) * dir
+    ctrl1Y := startY + (targetY - startY) * Random(25, 45) / 100 + Random(-arc, arc) * dir
 
-    ctrl2X := startX + (targetX - startX) * Random(60, 80) / 100 + Random(-arc * 0.5, arc * 0.5) * dir
-    ctrl2Y := startY + (targetY - startY) * Random(60, 80) / 100 + Random(-arc * 0.5, arc * 0.5) * dir
+    ctrl2X := startX + (targetX - startX) * Random(65, 85) / 100 + Random(-arc * 0.4, arc * 0.4) * dir
+    ctrl2Y := startY + (targetY - startY) * Random(65, 85) / 100 + Random(-arc * 0.4, arc * 0.4) * dir
 
-    ; Chia nhỏ bước nhảy theo nhịp ~125Hz - 250Hz (mỗi bước 5-8ms)
-    steps := Max(12, Round(durationMs / 6))
-    stepDelay := Max(1, Round(durationMs / steps))
+    steps := Max(8, Round(durationMs / 4))
+    stepDelay := durationMs / steps
+
+    DllCall("QueryPerformanceFrequency", "Int64*", &freq := 0)
+    DllCall("QueryPerformanceCounter", "Int64*", &startTick := 0)
 
     Loop steps {
         t := A_Index / steps
         
-        ; Công thức Ease-Out Cubic: Lướt nhanh ở đầu, hãm phanh tự nhiên khi tới gần đích
-        easeT := 1 - (1 - t)**3
+        easeT := 1 - (1 - t)**4
 
-        ; Tính tọa độ trên đường cong Bezier bậc 3
         u := 1 - easeT
         tt := easeT * easeT
         uu := u * u
@@ -229,42 +228,44 @@ HumanMouseMove(targetX, targetY, durationMs) {
         curX := uuu * startX + 3 * uu * easeT * ctrl1X + 3 * u * tt * ctrl2X + ttt * targetX
         curY := uuu * startY + 3 * uu * easeT * ctrl1Y + 3 * u * tt * ctrl2Y + ttt * targetY
 
-        ; Thêm độ rung tay vi mô (Micro-jitter) ở giữa hành trình, giảm dần về 0 khi chạm đích
-        if (A_Index < steps - 2) {
-            jitter := (1 - easeT) * 1.8
+        if (A_Index < steps - 1) {
+            jitter := (1 - easeT) * 0.8
             curX += Random(-jitter, jitter)
             curY += Random(-jitter, jitter)
         }
 
         MouseMove(Round(curX), Round(curY), 0)
         
-        ; Độ trễ từng nhịp biến thiên nhẹ như polling rate chuột thật
-        DllCall("Sleep", "UInt", stepDelay + Random(-1, 2))
+        targetTick := startTick + Round((A_Index * stepDelay / 1000) * freq)
+        Loop {
+            DllCall("QueryPerformanceCounter", "Int64*", &nowTick := 0)
+            if (nowTick >= targetTick)
+                break
+        }
     }
 
-    ; Chốt chuẩn xác tọa độ đích cuối cùng
     MouseMove(targetX, targetY, 0)
 }
 
 ; ========================================================
-; HÀM NHẤP CHUỘT (TÍCH HỢP CHUYỂN ĐỘNG THẬT & ĐỘ TRỄ NHẤN NHẢ NÚT)
+; HÀM NHẤP CHUỘT (ĐÃ TĂNG TỐC ĐỘ LƯỚT CHUỘT)
 ; ========================================================
 ExecuteClickHuman(posX, posY) {
     global isScriptClicking
-    randX := posX + Random(-2, 2)
-    randY := posY + Random(-2, 2)
+    randX := posX + Random(-3, 3)
+    randY := posY + Random(-3, 3)
 
-    HumanMouseMove(randX, randY, Random(180, 260))
-    Sleep(Random(30, 50))
+    HumanMouseMove(randX, randY, Random(85, 125))
+    Sleep(Random(15, 30))
     
     isScriptClicking := true
     Click("Down")
-    Sleep(Random(35, 65)) ; Thời gian ngón tay đè nút chuột xuống
+    Sleep(Random(25, 45))
     Click("Up")
-    Sleep(20)
+    Sleep(15)
     isScriptClicking := false
     
-    Sleep(Random(40, 60))
+    Sleep(Random(25, 45))
 }
 
 ExecuteClickFast(posX, posY) {
@@ -272,17 +273,17 @@ ExecuteClickFast(posX, posY) {
     randX := posX + Random(-2, 2)
     randY := posY + Random(-2, 2)
 
-    HumanMouseMove(randX, randY, Random(110, 160))
-    Sleep(Random(20, 40))
+    HumanMouseMove(randX, randY, Random(55, 85))
+    Sleep(Random(10, 25))
     
     isScriptClicking := true
     Click("Down")
-    Sleep(Random(25, 45))
+    Sleep(Random(20, 35))
     Click("Up")
-    Sleep(20)
+    Sleep(15)
     isScriptClicking := false
     
-    Sleep(Random(30, 50))
+    Sleep(Random(20, 35))
 }
 
 ExecuteClickSlow(posX, posY) {
@@ -290,15 +291,15 @@ ExecuteClickSlow(posX, posY) {
     randX := posX + Random(-2, 2)
     randY := posY + Random(-2, 2)
 
-    HumanMouseMove(randX, randY, Random(170, 240))
-    Sleep(Random(35, 65))
+    HumanMouseMove(randX, randY, Random(95, 135))
+    Sleep(Random(25, 45))
     
     isScriptClicking := true
     Click("Down")
-    Sleep(Random(40, 75))
+    Sleep(Random(30, 55))
     Click("Up")
-    Sleep(20)
+    Sleep(15)
     isScriptClicking := false
     
-    Sleep(Random(50, 80))
+    Sleep(Random(35, 60))
 }
